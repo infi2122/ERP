@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<class>
+
+    <suplier Name="SupplierA" DeliveryTime="4" MinQty="16"/>
+    <suplier Name="SupplierB" DeliveryTime="2" MinQty="8"/>
+    <suplier Name="SupplierC" DeliveryTime="1" MinQty="4"/>
+
+</class>

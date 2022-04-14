@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<class>
+    <!-- SupplierA -->
+    <Piece  Type="1" UnitCost="30"/>
+    <Piece  Type="2" UnitCost="10"/>
+    <!-- SupplierB -->
+    <Piece  Type="1" UnitCost="45"/>
+    <Piece  Type="2" UnitCost="15"/>
+    <!-- SupplierC -->
+    <Piece  Type="1" UnitCost="55"/>
+    <Piece  Type="2" UnitCost="18"/>
+</class>

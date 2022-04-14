@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<class>
+
+    <clientOrder>
+        <ClientName>Peugeot</ClientName>
+        <OrderNumber>1</OrderNumber>
+        <WorkPiece>3</WorkPiece>
+        <Quantity>1</Quantity>
+        <DueDate>5</DueDate>
+        <latePen>0</latePen>
+        <earlyPen>0</earlyPen>
+    </clientOrder>
+
+
+       <clientOrder>
+           <ClientName>Mazda</ClientName>
+           <OrderNumber>2</OrderNumber>
+           <WorkPiece>9</WorkPiece>
+           <Quantity>3</Quantity>
+           <DueDate>10</DueDate>
+           <latePen>0</latePen>
+           <earlyPen>0</earlyPen>
+       </clientOrder>
+   <!-->
+        <clientOrder>
+            <ClientName>Peugeot</ClientName>
+            <OrderNumber>120</OrderNumber>
+            <WorkPiece>3</WorkPiece>
+            <Quantity>3</Quantity>
+            <DueDate>240</DueDate>
+            <latePen>0.1</latePen>
+            <earlyPen>0.01</earlyPen>
+        </clientOrder>
+
+    <clientOrder>
+        <ClientName>Toyota</ClientName>
+        <OrderNumber>12</OrderNumber>
+        <WorkPiece>5</WorkPiece>
+        <Quantity>2</Quantity>
+        <DueDate>120</DueDate>
+        <latePen>0.1</latePen>
+        <earlyPen>0.01</earlyPen>
+    </clientOrder>
+
+    <ALEXA VER="0.9" URL="mkyong.com/" HOME="0" AID="=" IDN="mkyong.com/">
+        <SD>
+            <POPULARITY URL="mkyong.com/" TEXT="20162" SOURCE="panel"/>
+            <REACH RANK="14430"/>
+            <RANK DELTA="+947"/>
+            <COUNTRY CODE="IN" NAME="India" RANK="4951"/>
+        </SD>
+    </ALEXA>
+
+</!-->
+</class>
