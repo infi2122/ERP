@@ -2,7 +2,8 @@ import Controllers.ERP;
 import UDP.ERP2MES;
 import Models.higherDeadline;
 import SQL.SQL;
-import UDP.multiServer;
+import UDP.MESserver;
+import UDP.clientOrderServer;
 import Viewers.ERP_Viewer;
 
 import java.util.ArrayList;
@@ -10,7 +11,8 @@ import java.util.concurrent.Executors;
 
 public class App {
 
-    private static int port = 20000;
+    private static int portMES = 20000;
+    private static int portClientOrders = 54321;
 
     public static void main(String args[]) {
 
@@ -22,13 +24,22 @@ public class App {
         /* *************************************** */
         //sql.createSQLtables();
 
-        multiServer server = new multiServer();
+        MESserver server = new MESserver();
         try {
-            Executors.newSingleThreadExecutor().submit(() -> server.start(port, erp2mes));
+            Executors.newSingleThreadExecutor().submit(() -> server.start(portMES, erp2mes));
             Thread.sleep(100);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+
+        clientOrderServer clientOrderServer = new clientOrderServer();
+        try {
+            Executors.newSingleThreadExecutor().submit(() -> clientOrderServer.start(portClientOrders));
+            Thread.sleep(100);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
 
         try {
             while (true) {
@@ -39,6 +50,7 @@ public class App {
                 //erp.displayManufacturingOrders();
                 erp.displayInternalOrder();
                 erp.placeRawMaterialOrder();
+                //erp.displayRawMaterialOrdered();
                 erp.displayRawMaterialArriving();
 
             }

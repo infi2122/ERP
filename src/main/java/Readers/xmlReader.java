@@ -19,7 +19,7 @@ public class xmlReader {
             //creating a constructor of file class and parsing an XML file
             ArrayList<clientOrder> orders = new ArrayList<>();
             File file = new File("src/main/resources/File.xml");
-            if (!file.exists()){
+            if (!file.exists()) {
                 System.out.println("Cannot Read!");
             }
             //an instance of factory that gives a document builder
@@ -29,34 +29,37 @@ public class xmlReader {
             Document doc = db.parse(file);
             doc.getDocumentElement().normalize();
             //System.out.println("Root element: " + doc.getDocumentElement().getNodeName());
-
-            NodeList nodeList = doc.getElementsByTagName("clientOrder");
+            //NodeList nodeList = doc.getElementsByTagName("clientOrder");
+            NodeList nodeList = doc.getDocumentElement().getChildNodes();
+            String clientName = new String();
             // nodeList is not iterable, so we are using for loop
             for (int itr = 0; itr < nodeList.getLength(); itr++) {
+
                 Node node = nodeList.item(itr);
-                //System.out.println("\nNode Name :" + node.getNodeName());
+
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element eElement = (Element) node;
-                    clientOrder order = new clientOrder(
-                            eElement.getElementsByTagName("ClientName").item(0).getTextContent(),
-                            Integer.parseInt(eElement.getElementsByTagName("OrderNumber").item(0).getTextContent()),
-                            Integer.parseInt(eElement.getElementsByTagName("WorkPiece").item(0).getTextContent()),
-                            Integer.parseInt(eElement.getElementsByTagName("Quantity").item(0).getTextContent()),
-                            Integer.parseInt(eElement.getElementsByTagName("DueDate").item(0).getTextContent()),
-                            Float.parseFloat(eElement.getElementsByTagName("latePen").item(0).getTextContent()),
-                            Float.parseFloat(eElement.getElementsByTagName("earlyPen").item(0).getTextContent())
-                    );
-                    orders.add(order);
-                    /*
-                    System.out.println("Student id: "+ eElement.getElementsByTagName("id").item(0).getTextContent());
-                    System.out.println("First Name: "+ eElement.getElementsByTagName("firstname").item(0).getTextContent());
-                    System.out.println("Last Name: "+ eElement.getElementsByTagName("lastname").item(0).getTextContent());
-                    System.out.println("Subject: "+ eElement.getElementsByTagName("subject").item(0).getTextContent());
-                    System.out.println("Marks: "+ eElement.getElementsByTagName("marks").item(0).getTextContent());
-                    */
 
+                    if (node.getNodeName().equals("Client")) {
+                        clientName = ((Element) node).getAttribute("NameId");
+                    } else if (node.getNodeName().equals("Order")) {
+
+                        clientOrder order = new clientOrder(
+                                clientName,
+                                Integer.parseInt(((Element) node).getAttribute("Number")),
+                                Integer.parseInt(String.valueOf(((Element) node).getAttribute("WorkPiece").charAt(1))),
+                                Integer.parseInt(((Element) node).getAttribute("Quantity")),
+                                Integer.parseInt(((Element) node).getAttribute("DueDate")),
+                                Float.parseFloat(((Element) node).getAttribute("LatePen")),
+                                Float.parseFloat(((Element) node).getAttribute("EarlyPen"))
+
+                        );
+                        orders.add(order);
+                    }
                 }
             }
+
+
             return orders;
         } catch (Exception e) {
             e.printStackTrace();

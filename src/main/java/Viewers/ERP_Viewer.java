@@ -90,56 +90,7 @@ public class ERP_Viewer {
             }
         }
     }
-        /*
-        System.out.println("***** Internal Orders aka MES vectors *****");
-        System.out.println("**** Unload Orders ****");
-        int old_id = 0;
-        receiveOrder begin = new receiveOrder(0, 0);
-        receiveOrder end = new receiveOrder(0, 0);
 
-        for (receiveOrder curr : recv) {
-            if (old_id != curr.getOrderID()) {
-                System.out.println("productionID: " + begin.getOrderID() + " starts on day: " + begin.getStartDate() + " & ends on day: " + end.getStartDate());
-                begin = curr;
-                old_id = curr.getOrderID();
-            }
-            end = curr;
-            //System.out.println("productionID: " + curr.getOrderID() + " starts on day: " + curr.getStartDate());
-        }
-        System.out.println("productionID: " + begin.getOrderID() + " starts on day: " + begin.getStartDate() + " & ends on day: " + end.getStartDate());
-
-        System.out.println("\n**** Production Orders ****");
-        old_id = 0;
-        productionOrder begin2 = new productionOrder(0, 0);
-        productionOrder end2 = new productionOrder(0, 0);
-        for (productionOrder curr : prod) {
-            if (old_id != curr.getOrderID()) {
-                System.out.println("productionID: " + begin2.getOrderID() + " starts on day: " + begin2.getStartDate() + " & ends on day: " + end2.getStartDate());
-                begin2 = curr;
-                old_id = curr.getOrderID();
-            }
-            end2 = curr;
-            //System.out.println("productionID: " + curr.getOrderID() + " starts on day: " + curr.getStartDate());
-        }
-        System.out.println("productionID: " + begin2.getOrderID() + " starts on day: " + begin2.getStartDate() + " & ends on day: " + end2.getStartDate());
-
-        old_id = 0;
-        shippingOrder begin3 = new shippingOrder(0,0);
-        shippingOrder end3 = new shippingOrder(0,0);
-        System.out.println("\n**** Shipping Orders ****");
-        for (shippingOrder curr : ship) {
-            if (old_id != curr.getOrderID()) {
-                System.out.println("productionID: " + begin3.getOrderID() + " starts on day: " + begin3.getStartDate() + " & ends on day: " + end3.getStartDate());
-                begin3 = curr;
-                old_id = curr.getOrderID();
-            }
-            end3 = curr;
-            //System.out.println("productionID: " + curr.getOrderID() + " starts on day: " + curr.getStartDate());
-        }
-        System.out.println("productionID: " + begin3.getOrderID() + " starts on day: " + begin3.getStartDate() + " & ends on day: " + end3.getStartDate());
-        System.out.println(" ");
-    }
- */
     public void showRawMaterialArriving(ArrayList<manufacturingOrderController> allManufacturingOrders, long time) {
 
         for (manufacturingOrderController curr : allManufacturingOrders) {
@@ -150,6 +101,17 @@ public class ERP_Viewer {
                 }
             }
 
+        }
+    }
+
+    public void showRawMaterialsOrdered(ArrayList<rawMaterialOrder> arrayList){
+        for (rawMaterialOrder curr: arrayList){
+            System.out.println("***** Raw Material Ordered *****");
+            System.out.println("** Supplier: " + curr.getSupplier().getName() +
+                               " to be placed on day: " + curr.getOrderPlaceTime() +
+                               " of type: " + curr.getPieceType()+
+                               " quantity: " + curr.getQty() +
+                               " **");
         }
     }
 

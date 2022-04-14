@@ -16,7 +16,7 @@ public class ERP {
     private long startTime = 0;
     private int countdays = 0;
     private int dayBefore = -1;
-    private final boolean MethodExecuted[] = {true, true, true, true, true, true, true};
+    private final boolean MethodExecuted[] = {true, true, true, true, true, true, true,true};
 
     private static class exe {
         public static final int oneDay = 60;
@@ -168,7 +168,6 @@ public class ERP {
                     // plan.get(0) retorna o unload_begin
                     createRawMaterialOrder(plan.get(0), MyNewDetailedOrder);
 
-
                 }
             }
 
@@ -242,7 +241,10 @@ public class ERP {
 
     }
 
-    // Para checkar encomendas realizadas à espera de serem entregues
+    /**
+     *
+     * @return Encomendas realizadas à espera de serem entregues
+     */
     public ArrayList<rawMaterialOrder> allMaterialsOrdered() {
 
         ArrayList<rawMaterialOrder> arrayList = new ArrayList<>();
@@ -281,12 +283,17 @@ public class ERP {
                 break;
             }
         }
+        /*System.out.println("chosen supplier "+choosenSupplier.getName() + "for order " + order.getManufacturing_order().getClientOrder().getOrderNum() +
+                "of " + order.getManufacturing_order().getClientOrder().getClientName());*/
+
         // ao fazer o break garante-se que se escolhe sempre o fornecedor que demora mais a entregar logo o que sai mais barato
 
         // encomendar o nº de peças necessárias
         int qty_to_order = 0;
         if (choosenSupplier.getMinQty() > order.getManufacturing_order().getClientOrder().getQty()) {
             qty_to_order = choosenSupplier.getMinQty();
+        }else {
+            qty_to_order = order.getManufacturing_order().getClientOrder().getQty();
         }
 
         // Saber qual o tipo de peça 1 -> P6 e P8 ou 2-> Outras
@@ -392,6 +399,13 @@ public class ERP {
             dayBefore = countdays;
 
         }
+    }
+    public void displayRawMaterialOrdered (){
+        if (getTime() % 30 == 0 && getTime() != 0 && !MethodExecuted[6]) {
+            getErp_viewer().showRawMaterialsOrdered(allMaterialsOrdered());
+            MethodExecuted[6] = true;
+        }
+
     }
 
 }
