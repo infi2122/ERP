@@ -2,10 +2,12 @@ import Controllers.ERP;
 import UDP.ERP2MES;
 import Models.higherDeadline;
 import SQL.SQL;
+import UDP.EchoServer;
 import UDP.MESserver;
 import UDP.clientOrderServer;
 import Viewers.ERP_Viewer;
 
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
@@ -14,10 +16,10 @@ public class App {
     private static int portMES = 20000;
     private static int portClientOrders = 54321;
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws SocketException {
 
         ERP erp = new ERP(new higherDeadline(), new ArrayList<>(), new ERP_Viewer());
-        SQL sql = new SQL();
+        //SQL sql = new SQL();
 
         /* share resource for comunications to MES */
         ERP2MES erp2mes = new ERP2MES();
@@ -31,18 +33,23 @@ public class App {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+//
+//        clientOrderServer clientOrderServer = new clientOrderServer();
+//        try {
+//            Executors.newSingleThreadExecutor().submit(() -> clientOrderServer.start(portClientOrders));
+//            Thread.sleep(100);
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
 
-        clientOrderServer clientOrderServer = new clientOrderServer();
-        try {
-            Executors.newSingleThreadExecutor().submit(() -> clientOrderServer.start(portClientOrders));
-            Thread.sleep(100);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+
+        EchoServer udp = new EchoServer();
+
 
 
         try {
             while (true) {
+                udp.run();
                 Thread.sleep(300);
                 erp.countTime();
                 erp.checkNewOrders();
