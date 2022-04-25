@@ -5,43 +5,42 @@ import org.slf4j.LoggerFactory;
 
 import java.net.*;
 import java.io.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-public class MESserver {
+public class tcpServer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MESserver.class);
+    /* Thread timing */
+    private int initialDelay = 50;
+    private int periodicDelay = 60;
 
     private ServerSocket serverSocket;
 
-    public void start(int port,ERP2MES erp2mes) {
+    public void start(int port, shareResources erp2mes) {
         try {
 
             serverSocket = new ServerSocket(port);
-            while (true)
-                new EchoClientHandler(serverSocket.accept(),erp2mes).start();
+
+            ScheduledExecutorService scheduler
+                    = Executors.newSingleThreadScheduledExecutor();
+
+            Runnable task = new EchoClientHandler(serverSocket.accept(), erp2mes);
+
+            scheduler.scheduleAtFixedRate(task, initialDelay, periodicDelay, TimeUnit.SECONDS);
 
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            stop();
         }
-    }
-
-    public void stop() {
-        try {
-            serverSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
     private static class EchoClientHandler extends Thread {
         private Socket clientSocket;
         private PrintWriter out;
         private BufferedReader in;
-        private ERP2MES erp2MES;
+        private shareResources erp2MES;
 
-        public EchoClientHandler(Socket socket,ERP2MES erp2MES) {
+        public EchoClientHandler(Socket socket, shareResources erp2MES) {
             this.clientSocket = socket;
             this.erp2MES = erp2MES;
         }
@@ -52,15 +51,15 @@ public class MESserver {
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
-                    //System.out.println(inputLine);
+
                     if (".".equals(inputLine)) {
                         out.println("bye");
                         break;
                     }
-                    if(inputLine.equals("internalOrders")){
+                    if (inputLine.equals("internalOrders")) {
 
                         out.println(erp2MES.readInERP2MESbuffer());
-                        //break;
+
                     }
 
                 }
@@ -70,14 +69,14 @@ public class MESserver {
                 clientSocket.close();
 
             } catch (IOException e) {
-                LOG.debug(e.getMessage());
+                System.out.println(e.getMessage());
             }
         }
     }
 
     public static void main(String[] args) {
-        MESserver server = new MESserver();
-        server.start(5555,new ERP2MES());
+        tcpServer server = new tcpServer();
+        server.start(5555, new shareResources());
     }
 
 }

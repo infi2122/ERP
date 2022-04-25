@@ -1,6 +1,6 @@
 package Controllers;
 
-import UDP.ERP2MES;
+import UDP.shareResources;
 import Models.*;
 import Readers.suppliersList;
 import Readers.xmlReader;
@@ -16,7 +16,7 @@ public class ERP {
     private long startTime = 0;
     private int countdays = 0;
     private int dayBefore = -1;
-    private final boolean MethodExecuted[] = {true, true, true, true, true, true, true,true};
+    private final boolean MethodExecuted[] = {true, true, true, true, true, true, true, true};
 
     private static class exe {
         public static final int oneDay = 60;
@@ -136,16 +136,22 @@ public class ERP {
     }
 
     /**
-     * @return return if exists new orders
+     * Checks if exists new orders in the stack of share resources of communications
+     *
+     * @param sharedResource
+     * @return
      */
-    public boolean checkNewOrders() {
+    public boolean checkNewOrders(String sharedResource) {
 
         boolean detectedNewOrders = false;
 
         if ((getTime() % executionPeriocity.checkOrder_t == 0 && !MethodExecuted[0]) || (countdays == 0 && !MethodExecuted[0])) {
 
             xmlReader reader = new xmlReader();
-            ArrayList<clientOrder> ordersVec = reader.readOrder();
+            ArrayList<clientOrder> ordersVec = reader.readOrder(sharedResource);
+
+            if (ordersVec == null)
+                return false;
 
             for (clientOrder currOrder : ordersVec) {
 
@@ -242,7 +248,6 @@ public class ERP {
     }
 
     /**
-     *
      * @return Encomendas realizadas à espera de serem entregues
      */
     public ArrayList<rawMaterialOrder> allMaterialsOrdered() {
@@ -292,7 +297,7 @@ public class ERP {
         int qty_to_order = 0;
         if (choosenSupplier.getMinQty() > order.getManufacturing_order().getClientOrder().getQty()) {
             qty_to_order = choosenSupplier.getMinQty();
-        }else {
+        } else {
             qty_to_order = order.getManufacturing_order().getClientOrder().getQty();
         }
 
@@ -325,7 +330,7 @@ public class ERP {
     }
 
 
-    public void send2MESinteralOrders(ERP2MES erp2MES) {
+    public void send2MESinteralOrders(shareResources erp2MES) {
 
         if (getTime() % executionPeriocity.sendInternalOrdersToMES == 0 && getTime() != 0 && !MethodExecuted[6]) {
             String recvString = new String();
@@ -400,7 +405,8 @@ public class ERP {
 
         }
     }
-    public void displayRawMaterialOrdered (){
+
+    public void displayRawMaterialOrdered() {
         if (getTime() % 30 == 0 && getTime() != 0 && !MethodExecuted[6]) {
             getErp_viewer().showRawMaterialsOrdered(allMaterialsOrdered());
             MethodExecuted[6] = true;
