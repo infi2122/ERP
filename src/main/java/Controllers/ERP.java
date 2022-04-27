@@ -16,7 +16,7 @@ public class ERP {
     private long startTime = 0;
     private int countdays = 0;
     private int dayBefore = -1;
-    private final boolean MethodExecuted[] = {true, true, true, true, true, true, true, true};
+
 
     private static class exe {
         public static final int oneDay = 60;
@@ -32,9 +32,9 @@ public class ERP {
         public static final int sendInternalOrdersToMES = exe.oneDay;
     }
 
-
     // ******* ATTRIBUTES ********
     private long currentTime;
+    private shareResources shareResources;
     private orderCriterium orderCriterium;
     private ArrayList<manufacturingOrderController> manufacturingOrders;
     private ERP_Viewer erp_viewer;
@@ -44,10 +44,12 @@ public class ERP {
 
 
     // ******* CONSTRUCTOR ********
-    public ERP(orderCriterium orderCriterium, ArrayList<manufacturingOrderController> manufacturingOrderControllers, ERP_Viewer erp_viewer) {
+    public ERP(orderCriterium orderCriterium, ArrayList<manufacturingOrderController> manufacturingOrderControllers,
+               ERP_Viewer erp_viewer, shareResources sharedResources) {
         this.orderCriterium = orderCriterium;
         this.manufacturingOrders = manufacturingOrderControllers;
         this.erp_viewer = erp_viewer;
+        this.shareResources = sharedResources;
         this.receiveOrder = new ArrayList<>();
         this.productionOrder = new ArrayList<>();
         this.shippingOrder = new ArrayList<>();
@@ -116,9 +118,11 @@ public class ERP {
 
     // counts every second
     public void countTime() {
+
         if (startTime == 0) {
-            System.out.println("Current Day: " + countdays);
             startTime = System.currentTimeMillis();
+            shareResources.setStartTime(startTime);
+            System.out.println("Current Day: " + countdays);
 
         } else {
             long time = System.currentTimeMillis();
@@ -130,9 +134,9 @@ public class ERP {
                     countdays = (int) getTime() / exe.oneDay;
                     System.out.println("Current Day: " + countdays);
                 }
-                Arrays.fill(MethodExecuted, false);
             }
         }
+
     }
 
     /**
@@ -145,43 +149,43 @@ public class ERP {
 
         boolean detectedNewOrders = false;
 
-        if ((getTime() % executionPeriocity.checkOrder_t == 0 && !MethodExecuted[0]) || (countdays == 0 && !MethodExecuted[0])) {
+        xmlReader reader = new xmlReader();
+        ArrayList<clientOrder> ordersVec = reader.readOrder(sharedResource);
 
-            xmlReader reader = new xmlReader();
-            ArrayList<clientOrder> ordersVec = reader.readOrder(sharedResource);
+        if (ordersVec == null)
+            return false;
 
-            if (ordersVec == null)
-                return false;
+        for (clientOrder currOrder : ordersVec) {
 
-            for (clientOrder currOrder : ordersVec) {
+            if (!check_if_clientOrder_have_manufacturingOrder(currOrder, getManufacturingOrders())) {
+                detectedNewOrders = true;
 
-                if (!check_if_clientOrder_have_manufacturingOrder(currOrder, getManufacturingOrders())) {
-                    detectedNewOrders = true;
-                    manufacturingOrderController MyNewDetailedOrder =
-                            new manufacturingOrderController(new manufacturingOrder(getManufacturingOrders().size(), currOrder),
-                                    new manufacturingOrder_Viewer(),
-                                    new clientOrderController(currOrder, new clientOrder_Viewer()));
+                // The orderID will be of type xyy, where x is the expected final piece and the yy is the orderID it self
 
-                    // Error testing
-                    if (!addDetailedOrder(MyNewDetailedOrder))
-                        System.out.println("Error adding new detailed order to manufacturingOrderController !");
+                int orderID = currOrder.getPieceType() * 100 + getManufacturingOrders().size();
+
+                manufacturingOrderController MyNewDetailedOrder =
+                        new manufacturingOrderController(new manufacturingOrder(orderID, currOrder),
+                                new manufacturingOrder_Viewer(),
+                                new clientOrderController(currOrder, new clientOrder_Viewer()));
+
+                // Error testing
+                if (!addDetailedOrder(MyNewDetailedOrder))
+                    System.out.println("Error adding new detailed order to manufacturingOrderController !");
 
 
-                    Vector<Integer> plan = getOrderCriterium().scheduler(MyNewDetailedOrder, getTime());
-                    //int rawmaterialdelivery = estimatePlan(MyNewDetailedOrder);
-                    createInternalOrders(plan, MyNewDetailedOrder.getManufacturing_order().getProductionID());
+                Vector<Integer> plan = getOrderCriterium().scheduler(MyNewDetailedOrder, getTime());
+                //int rawmaterialdelivery = estimatePlan(MyNewDetailedOrder);
+                createInternalOrders(plan, MyNewDetailedOrder.getManufacturing_order().getProductionID());
 
-                    // plan.get(0) retorna o unload_begin
-                    createRawMaterialOrder(plan.get(0), MyNewDetailedOrder);
+                // plan.get(0) retorna o unload_begin
+                createRawMaterialOrder(plan.get(0), MyNewDetailedOrder);
 
-                }
             }
-
-
-            getOrderCriterium().ordering(getManufacturingOrders());
-            MethodExecuted[0] = true;
-
         }
+
+        getOrderCriterium().ordering(getManufacturingOrders());
+
         return detectedNewOrders;
     }
 
@@ -190,7 +194,7 @@ public class ERP {
      */
     public void placeRawMaterialOrder() {
 
-        if (getTime() % executionPeriocity.placeRawMaterialOrder_t == 0 && !MethodExecuted[3]) {
+        if (getTime() % executionPeriocity.placeRawMaterialOrder_t == 0) {
 
             for (manufacturingOrderController curr : getManufacturingOrders()) {
                 for (rawMaterialOrder currMaterial : curr.getManufacturing_order().getRawMaterialOrder()) {
@@ -200,7 +204,7 @@ public class ERP {
                 }
 
             }
-            MethodExecuted[3] = true;
+
         }
     }
 
@@ -332,68 +336,66 @@ public class ERP {
 
     public void send2MESinteralOrders(shareResources erp2MES) {
 
-        if (getTime() % executionPeriocity.sendInternalOrdersToMES == 0 && getTime() != 0 && !MethodExecuted[6]) {
-            String recvString = new String();
-            String prodString = new String();
-            String shipString = new String();
 
-            for (receiveOrder curr : getReceiveOrder()) {
-                if (curr.getStartDate() <= (int) (getTime() / exe.oneDay) + exe.internalOrders_target) {
-                    recvString = recvString.concat(Integer.toString(curr.getOrderID()));
-                    recvString = recvString.concat("@");
-                    recvString = recvString.concat(Integer.toString(curr.getStartDate()));
-                    recvString = recvString.concat("/");
-                }
+        String recvString = new String();
+        String prodString = new String();
+        String shipString = new String();
+
+        for (receiveOrder curr : getReceiveOrder()) {
+            if (curr.getStartDate() <= (int) (getTime() / exe.oneDay) + exe.internalOrders_target) {
+                recvString = recvString.concat(Integer.toString(curr.getOrderID()));
+                recvString = recvString.concat("@");
+                recvString = recvString.concat(Integer.toString(curr.getStartDate()));
+                recvString = recvString.concat("/");
             }
-            recvString = recvString.concat("-");
-
-            for (productionOrder curr : getProductionOrder()) {
-                if (curr.getStartDate() <= (int) (getTime() / exe.oneDay) + exe.internalOrders_target) {
-                    prodString = prodString.concat(Integer.toString(curr.getOrderID()));
-                    prodString = prodString.concat("@");
-                    prodString = prodString.concat(Integer.toString(curr.getStartDate()));
-                    prodString = prodString.concat("/");
-                }
-            }
-            prodString = prodString.concat("-");
-
-            for (shippingOrder curr : getShippingOrder()) {
-                if (curr.getStartDate() <= (int) (getTime() / exe.oneDay) + exe.internalOrders_target) {
-                    shipString = shipString.concat(Integer.toString(curr.getOrderID()));
-                    shipString = shipString.concat("@");
-                    shipString = shipString.concat(Integer.toString(curr.getStartDate()));
-                    shipString = shipString.concat("/");
-                }
-            }
-            shipString = shipString.concat("-");
-            String returnStr = new String();
-
-            returnStr = returnStr.concat(recvString);
-            returnStr = returnStr.concat(prodString);
-            returnStr = returnStr.concat(shipString);
-
-            System.out.println(returnStr);
-            erp2MES.printInERP2MESbuffer(returnStr);
-            MethodExecuted[6] = true;
-            return;
         }
+        recvString = recvString.concat("-");
+
+        for (productionOrder curr : getProductionOrder()) {
+            if (curr.getStartDate() <= (int) (getTime() / exe.oneDay) + exe.internalOrders_target) {
+                prodString = prodString.concat(Integer.toString(curr.getOrderID()));
+                prodString = prodString.concat("@");
+                prodString = prodString.concat(Integer.toString(curr.getStartDate()));
+                prodString = prodString.concat("/");
+            }
+        }
+        prodString = prodString.concat("-");
+
+        for (shippingOrder curr : getShippingOrder()) {
+            if (curr.getStartDate() <= (int) (getTime() / exe.oneDay) + exe.internalOrders_target) {
+                shipString = shipString.concat(Integer.toString(curr.getOrderID()));
+                shipString = shipString.concat("@");
+                shipString = shipString.concat(Integer.toString(curr.getStartDate()));
+                shipString = shipString.concat("/");
+            }
+        }
+        shipString = shipString.concat("-");
+        String returnStr = new String();
+
+        returnStr = returnStr.concat(recvString);
+        returnStr = returnStr.concat(prodString);
+        returnStr = returnStr.concat(shipString);
+
+        //System.out.println(returnStr);
+        erp2MES.printInERP2MESbuffer(returnStr);
+
+        return;
+
 
     }
 
     // ******** VIEW METHODS *********
 
     public void displayManufacturingOrders() {
-        if (getTime() % executionPeriocity.displayManufacturingOrders_t == 0 && getTime() != 0 && !MethodExecuted[1]) {
-            getErp_viewer().showManufacturingOrders(getManufacturingOrders());
-            MethodExecuted[1] = true;
-        }
+
+        getErp_viewer().showManufacturingOrders(getManufacturingOrders());
+
 
     }
 
     public void displayRawMaterialArriving() {
-        if (getTime() % executionPeriocity.displayRawMaterialArriving_t == 0 && !MethodExecuted[2])
-            getErp_viewer().showRawMaterialArriving(getManufacturingOrders(), getTime());
-        MethodExecuted[2] = true;
+
+        getErp_viewer().showRawMaterialArriving(getManufacturingOrders(), getTime());
 
 
     }
@@ -407,10 +409,9 @@ public class ERP {
     }
 
     public void displayRawMaterialOrdered() {
-        if (getTime() % 30 == 0 && getTime() != 0 && !MethodExecuted[6]) {
-            getErp_viewer().showRawMaterialsOrdered(allMaterialsOrdered());
-            MethodExecuted[6] = true;
-        }
+
+        getErp_viewer().showRawMaterialsOrdered(allMaterialsOrdered());
+
 
     }
 

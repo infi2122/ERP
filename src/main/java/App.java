@@ -5,8 +5,10 @@ import UDP.tcpServer;
 import UDP.udpServer;
 import Viewers.ERP_Viewer;
 
-import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class App {
@@ -16,13 +18,13 @@ public class App {
 
     public static void main(String args[]) {
 
-        ERP erp = new ERP(new higherDeadline(), new ArrayList<>(), new ERP_Viewer());
-        //SQL sql = new SQL();
-        //sql.createSQLtables();
-
         /* share resource for comunications  */
         shareResources shareResources = new shareResources();
         /* *************************************** */
+
+        ERP erp = new ERP(new higherDeadline(), new ArrayList<>(), new ERP_Viewer(),shareResources);
+        //SQL sql = new SQL();
+        //sql.createSQLtables();
 
         /* TCP/IP for MES communications */
         tcpServer MESserver = new tcpServer();
@@ -34,10 +36,26 @@ public class App {
         udpThread.start(portClientOrders, shareResources);
         /* *************************************** */
 
-        try {
-            while (true) {
-                Thread.sleep(300);
-                erp.countTime();
+        ScheduledExecutorService schedulerERP = Executors.newScheduledThreadPool(2);
+        schedulerERP.scheduleAtFixedRate(new myTimer(erp), 0, 60, TimeUnit.SECONDS);
+        schedulerERP.scheduleAtFixedRate(new myERP(erp, shareResources), 5, 60, TimeUnit.SECONDS);
+
+    }
+
+    private static class myERP extends Thread {
+
+        private final ERP erp;
+        private shareResources shareResources;
+
+        public myERP(ERP erp1, shareResources shared) {
+            this.erp = erp1;
+            this.shareResources = shared;
+        }
+
+        @Override
+        public void run() {
+
+            synchronized (erp) {
                 erp.checkNewOrders(shareResources.getClientOrders());
                 erp.send2MESinteralOrders(shareResources);
                 //erp.displayManufacturingOrders();
@@ -45,11 +63,24 @@ public class App {
                 erp.placeRawMaterialOrder();
                 //erp.displayRawMaterialOrdered();
                 erp.displayRawMaterialArriving();
-
             }
+        }
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+    }
+
+    private static class myTimer extends Thread {
+
+        private final ERP erp;
+
+        public myTimer(ERP erp1) {
+            this.erp = erp1;
+        }
+
+        @Override
+        public void run() {
+            synchronized (erp) {
+                erp.countTime();
+            }
         }
     }
 

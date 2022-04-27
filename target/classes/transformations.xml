@@ -7,7 +7,7 @@
     <transformation Init="4" Final="7" Tool="4" Duration="10" />
     <transformation Init="7" Final="9" Tool="3" Duration="10" />
 
-    <transformation Init="1" Final="6" Tool="1" Duration="10" />
+    <transformation Init="1" Final="6" Tool="1" Duration="20" />
     <transformation Init="6" Final="8" Tool="3" Duration="30" />
 
 </class>
