@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit;
 public class tcpServer {
 
     /* Thread timing */
-    private int initialDelay = 50;
-    private int periodicDelay = 60;
+    private int initialDelay = 0;
+    private int periodicDelay = 55;
 
     private ServerSocket serverSocket;
 
@@ -25,9 +25,7 @@ public class tcpServer {
             ScheduledExecutorService scheduler
                     = Executors.newSingleThreadScheduledExecutor();
 
-            Runnable task = new EchoClientHandler(serverSocket.accept(), erp2mes);
-
-            scheduler.scheduleAtFixedRate(task, initialDelay, periodicDelay, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(new EchoClientHandler(serverSocket, erp2mes), initialDelay, periodicDelay, TimeUnit.SECONDS);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -35,33 +33,33 @@ public class tcpServer {
     }
 
     private static class EchoClientHandler extends Thread {
-        private Socket clientSocket;
+        private ServerSocket serverSocket;
         private PrintWriter out;
         private BufferedReader in;
         private shareResources erp2MES;
 
-        public EchoClientHandler(Socket socket, shareResources erp2MES) {
-            this.clientSocket = socket;
+        public EchoClientHandler(ServerSocket socket, shareResources erp2MES) {
+            this.serverSocket = socket;
             this.erp2MES = erp2MES;
         }
 
         public void run() {
             try {
-                out = new PrintWriter(clientSocket.getOutputStream(), true);
+                Socket clientSocket = serverSocket.accept();
+
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                out = new PrintWriter(clientSocket.getOutputStream(), true);
+
+
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
 
-                    if (".".equals(inputLine)) {
-                        out.println("bye");
-                        break;
-                    }
                     if (inputLine.equals("internalOrders")) {
-
                         out.println(erp2MES.readInERP2MESbuffer());
-
                     }
-
+                    if (inputLine.equals("time")) {
+                        out.println(erp2MES.getStartTime());
+                    }
                 }
 
                 in.close();

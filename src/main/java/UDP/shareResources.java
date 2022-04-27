@@ -2,8 +2,17 @@ package UDP;
 
 public class shareResources {
 
+    private long startTime;
     private String internalOrdersConcat;
     private String clientOrders;
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
 
     public String getInternalOrdersConcat() {
         return internalOrdersConcat;
@@ -21,10 +30,11 @@ public class shareResources {
         this.clientOrders = clientOrders;
     }
 
-    public void receiveNewOrder_udp (String str){
+    public void receiveNewOrder_udp(String str) {
         setClientOrders(str);
     }
-    public String readNewOrder_udp () {
+
+    public String readNewOrder_udp() {
         return getClientOrders();
     }
 
@@ -38,6 +48,5 @@ public class shareResources {
 
         return getInternalOrdersConcat();
     }
-
 
 }

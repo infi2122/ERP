@@ -12,11 +12,10 @@ import java.util.concurrent.TimeUnit;
 public class udpServer {
 
     /* Thread timing */
-    private int initialDelay = 10;
-    private int periodicDelay = 60;
+    private int initialDelay = 0;
+    private int periodicDelay = 55;
 
     private DatagramSocket socket;
-
 
     public void start(int port, shareResources sharedBuffer) {
 
@@ -27,7 +26,6 @@ public class udpServer {
                     = Executors.newSingleThreadScheduledExecutor();
 
             Runnable task =  new Handler(socket,sharedBuffer);
-
 
             scheduler.scheduleAtFixedRate(task,initialDelay,periodicDelay, TimeUnit.SECONDS);
 
