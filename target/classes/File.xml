@@ -1,27 +1,32 @@
 <?xml version="1.0"?>
 <class>
 
-    <clientOrder>
-        <ClientName>Peugeot</ClientName>
-        <OrderNumber>1</OrderNumber>
-        <WorkPiece>3</WorkPiece>
-        <Quantity>1</Quantity>
-        <DueDate>5</DueDate>
-        <latePen>0</latePen>
-        <earlyPen>0</earlyPen>
-    </clientOrder>
+    <Client NameId="Client AA"/>
+    <Order Number="18" WorkPiece="P9" Quantity="8" DueDate="10" LatePen="10" EarlyPen="10"/>
+    <Order Number="19" WorkPiece="P6" Quantity="1" DueDate="4" LatePen="10" EarlyPen="10"/>
+
+    <!-->
+     <clientOrder>
+         <ClientName>Peugeot</ClientName>
+         <OrderNumber>1</OrderNumber>
+         <WorkPiece>3</WorkPiece>
+         <Quantity>1</Quantity>
+         <DueDate>5</DueDate>
+         <latePen>0</latePen>
+         <earlyPen>0</earlyPen>
+     </clientOrder>
 
 
-       <clientOrder>
-           <ClientName>Mazda</ClientName>
-           <OrderNumber>2</OrderNumber>
-           <WorkPiece>9</WorkPiece>
-           <Quantity>3</Quantity>
-           <DueDate>10</DueDate>
-           <latePen>0</latePen>
-           <earlyPen>0</earlyPen>
-       </clientOrder>
-   <!-->
+        <clientOrder>
+            <ClientName>Mazda</ClientName>
+            <OrderNumber>2</OrderNumber>
+            <WorkPiece>9</WorkPiece>
+            <Quantity>3</Quantity>
+            <DueDate>10</DueDate>
+            <latePen>0</latePen>
+            <earlyPen>0</earlyPen>
+        </clientOrder>
+
         <clientOrder>
             <ClientName>Peugeot</ClientName>
             <OrderNumber>120</OrderNumber>

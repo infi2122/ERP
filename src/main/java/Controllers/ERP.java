@@ -1,6 +1,6 @@
 package Controllers;
 
-import UDP.ERP2MES;
+import UDP.shareResources;
 import Models.*;
 import Readers.suppliersList;
 import Readers.xmlReader;
@@ -16,7 +16,7 @@ public class ERP {
     private long startTime = 0;
     private int countdays = 0;
     private int dayBefore = -1;
-    private final boolean MethodExecuted[] = {true, true, true, true, true, true, true};
+    private final boolean MethodExecuted[] = {true, true, true, true, true, true, true, true};
 
     private static class exe {
         public static final int oneDay = 60;
@@ -136,16 +136,22 @@ public class ERP {
     }
 
     /**
-     * @return return if exists new orders
+     * Checks if exists new orders in the stack of share resources of communications
+     *
+     * @param sharedResource
+     * @return
      */
-    public boolean checkNewOrders() {
+    public boolean checkNewOrders(String sharedResource) {
 
         boolean detectedNewOrders = false;
 
         if ((getTime() % executionPeriocity.checkOrder_t == 0 && !MethodExecuted[0]) || (countdays == 0 && !MethodExecuted[0])) {
 
             xmlReader reader = new xmlReader();
-            ArrayList<clientOrder> ordersVec = reader.readOrder();
+            ArrayList<clientOrder> ordersVec = reader.readOrder(sharedResource);
+
+            if (ordersVec == null)
+                return false;
 
             for (clientOrder currOrder : ordersVec) {
 
@@ -167,7 +173,6 @@ public class ERP {
 
                     // plan.get(0) retorna o unload_begin
                     createRawMaterialOrder(plan.get(0), MyNewDetailedOrder);
-
 
                 }
             }
@@ -242,7 +247,9 @@ public class ERP {
 
     }
 
-    // Para checkar encomendas realizadas à espera de serem entregues
+    /**
+     * @return Encomendas realizadas à espera de serem entregues
+     */
     public ArrayList<rawMaterialOrder> allMaterialsOrdered() {
 
         ArrayList<rawMaterialOrder> arrayList = new ArrayList<>();
@@ -281,12 +288,17 @@ public class ERP {
                 break;
             }
         }
+        /*System.out.println("chosen supplier "+choosenSupplier.getName() + "for order " + order.getManufacturing_order().getClientOrder().getOrderNum() +
+                "of " + order.getManufacturing_order().getClientOrder().getClientName());*/
+
         // ao fazer o break garante-se que se escolhe sempre o fornecedor que demora mais a entregar logo o que sai mais barato
 
         // encomendar o nº de peças necessárias
         int qty_to_order = 0;
         if (choosenSupplier.getMinQty() > order.getManufacturing_order().getClientOrder().getQty()) {
             qty_to_order = choosenSupplier.getMinQty();
+        } else {
+            qty_to_order = order.getManufacturing_order().getClientOrder().getQty();
         }
 
         // Saber qual o tipo de peça 1 -> P6 e P8 ou 2-> Outras
@@ -318,7 +330,7 @@ public class ERP {
     }
 
 
-    public void send2MESinteralOrders(ERP2MES erp2MES) {
+    public void send2MESinteralOrders(shareResources erp2MES) {
 
         if (getTime() % executionPeriocity.sendInternalOrdersToMES == 0 && getTime() != 0 && !MethodExecuted[6]) {
             String recvString = new String();
@@ -392,6 +404,14 @@ public class ERP {
             dayBefore = countdays;
 
         }
+    }
+
+    public void displayRawMaterialOrdered() {
+        if (getTime() % 30 == 0 && getTime() != 0 && !MethodExecuted[6]) {
+            getErp_viewer().showRawMaterialsOrdered(allMaterialsOrdered());
+            MethodExecuted[6] = true;
+        }
+
     }
 
 }

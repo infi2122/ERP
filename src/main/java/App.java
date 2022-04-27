@@ -1,44 +1,49 @@
 import Controllers.ERP;
-import UDP.ERP2MES;
+import UDP.shareResources;
 import Models.higherDeadline;
-import SQL.SQL;
-import UDP.multiServer;
+import UDP.tcpServer;
+import UDP.udpServer;
 import Viewers.ERP_Viewer;
 
+import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
+
 
 public class App {
 
-    private static int port = 20000;
+    private static int portMES = 20000;
+    private static int portClientOrders = 54321;
 
     public static void main(String args[]) {
 
         ERP erp = new ERP(new higherDeadline(), new ArrayList<>(), new ERP_Viewer());
-        SQL sql = new SQL();
-
-        /* share resource for comunications to MES */
-        ERP2MES erp2mes = new ERP2MES();
-        /* *************************************** */
+        //SQL sql = new SQL();
         //sql.createSQLtables();
 
-        multiServer server = new multiServer();
-        try {
-            Executors.newSingleThreadExecutor().submit(() -> server.start(port, erp2mes));
-            Thread.sleep(100);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+        /* share resource for comunications  */
+        shareResources shareResources = new shareResources();
+        /* *************************************** */
+
+        /* TCP/IP for MES communications */
+        tcpServer MESserver = new tcpServer();
+        MESserver.start(portMES, shareResources);
+        /* *************************************** */
+
+        /* UDP Listener for new orders */
+        udpServer udpThread = new udpServer();
+        udpThread.start(portClientOrders, shareResources);
+        /* *************************************** */
 
         try {
             while (true) {
                 Thread.sleep(300);
                 erp.countTime();
-                erp.checkNewOrders();
-                erp.send2MESinteralOrders(erp2mes);
+                erp.checkNewOrders(shareResources.getClientOrders());
+                erp.send2MESinteralOrders(shareResources);
                 //erp.displayManufacturingOrders();
                 erp.displayInternalOrder();
                 erp.placeRawMaterialOrder();
+                //erp.displayRawMaterialOrdered();
                 erp.displayRawMaterialArriving();
 
             }

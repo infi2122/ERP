@@ -1,8 +1,9 @@
 package UDP;
 
-public class ERP2MES {
+public class shareResources {
 
     private String internalOrdersConcat;
+    private String clientOrders;
 
     public String getInternalOrdersConcat() {
         return internalOrdersConcat;
@@ -10,6 +11,21 @@ public class ERP2MES {
 
     public void setInternalOrdersConcat(String internalOrdersConcat) {
         this.internalOrdersConcat = internalOrdersConcat;
+    }
+
+    public String getClientOrders() {
+        return clientOrders;
+    }
+
+    public void setClientOrders(String clientOrders) {
+        this.clientOrders = clientOrders;
+    }
+
+    public void receiveNewOrder_udp (String str){
+        setClientOrders(str);
+    }
+    public String readNewOrder_udp () {
+        return getClientOrders();
     }
 
     public void printInERP2MESbuffer(String str) {
