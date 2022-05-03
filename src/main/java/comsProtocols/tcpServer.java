@@ -59,8 +59,6 @@ public class tcpServer {
                     }
                     if(inputLine.equals("stockUpdate")){
                         out.println(erp2MES.getStockUpdate());
-                        //Limpa a String
-                        erp2MES.setStockUpdate("");
                     }
                 }
 

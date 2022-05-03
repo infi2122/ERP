@@ -226,7 +226,36 @@ public class ERP {
      * @param order
      */
     public void createInternalOrders(Vector<Integer> vector, manufacturingOrder order) {
-        int i = 0;
+
+        int manufacturingID = order.getProductionID();
+
+        // Pesquisa dentro de todas as rawMaterial Orders
+        for (rawMaterialOrder curr : getRawMaterialOrders()) {
+
+            for (idResQty curr2 : curr.getIDResQty_vec()) {
+                // Quais sao as encomendas associadas ao manufacturing ID
+                if (curr2.getOrderID() == manufacturingID) {
+                    // Logo cria uma RECV Order dessa quantidade para o arrivalDate da encomenda total e não
+                    // Do dia estimado que é suposto chegar a encomenda ( dado por vector.get(0) )
+                    getReceiveOrder().add(
+                            new receiveOrder(manufacturingID,
+                                    vector.get(0),
+                                    order.getClientOrder().getPieceType(),
+                                    curr2.getReservedQty()
+                            ));
+                }
+            }
+        }
+
+        // Para o ProductionOrder
+        getProductionOrder().add(new productionOrder(order.getProductionID(), vector.get(2)));
+
+        // Para o ShippingOrder
+        getShippingOrder().add(new shippingOrder(order.getProductionID(), vector.get(4)));
+
+
+
+        /*int i = 0;
         // Para o ReceiveOrder
         int manufacturingID = order.getProductionID();
         while (i <= vector.get(1) - vector.get(0)) {
@@ -241,7 +270,7 @@ public class ERP {
                         getReceiveOrder().add(
                                 new receiveOrder(manufacturingID,
                                         curr.getArrivalTime() + i,
-                                        curr.getPieceType(),
+                                        order.getClientOrder().getPieceType(),
                                         curr2.getReservedQty()
                                 ));
                     }
@@ -262,7 +291,7 @@ public class ERP {
             getShippingOrder().add(new shippingOrder(order.getProductionID(), vector.get(4) + i));
             i++;
         }
-
+*/
     }
 
     /**
@@ -575,15 +604,21 @@ public class ERP {
         String prodString = new String();
         String shipString = new String();
 
+
         for (receiveOrder curr : getReceiveOrder()) {
             if (curr.getStartDate() <= (int) (getTime() / oneDay) + internalOrders_target) {
                 recvString = recvString.concat(Integer.toString(curr.getOrderID()));
                 recvString = recvString.concat("@");
                 recvString = recvString.concat(Integer.toString(curr.getStartDate()));
+                recvString = recvString.concat("@");
+                recvString = recvString.concat(Integer.toString(curr.getPieceType()));
+                recvString = recvString.concat("@");
+                recvString = recvString.concat(Integer.toString(curr.getReservedQty()));
                 recvString = recvString.concat("/");
+
             }
         }
-        recvString = recvString.concat("-");
+        recvString = recvString.concat("_");
 
         for (productionOrder curr : getProductionOrder()) {
             if (curr.getStartDate() <= (int) (getTime() / oneDay) + internalOrders_target) {
@@ -593,7 +628,7 @@ public class ERP {
                 prodString = prodString.concat("/");
             }
         }
-        prodString = prodString.concat("-");
+        prodString = prodString.concat("_");
 
         for (shippingOrder curr : getShippingOrder()) {
             if (curr.getStartDate() <= (int) (getTime() / oneDay) + internalOrders_target) {
@@ -603,7 +638,7 @@ public class ERP {
                 shipString = shipString.concat("/");
             }
         }
-        shipString = shipString.concat("-");
+        shipString = shipString.concat("_");
         String returnStr = new String();
 
         returnStr = returnStr.concat(recvString);
@@ -627,19 +662,18 @@ public class ERP {
 
     }
 
-//    public void displayRawMaterialArriving() {
-//
-//        getErp_viewer().showRawMaterialArriving(getManufacturingOrders(), getTime());
-//
-//
-//    }
+    public void displayRawMaterialArriving() {
+
+        getErp_viewer().showRawMaterialArriving(getRawMaterialOrders(), getTime());
+
+
+    }
 
     public void displayInternalOrder() {
-        if (dayBefore != countdays && countdays != 0) {
-            getErp_viewer().showInternalOrders(getReceiveOrder(), getProductionOrder(), getShippingOrder());
-            dayBefore = countdays;
 
-        }
+        getErp_viewer().showInternalOrders(getReceiveOrder(), getProductionOrder(), getShippingOrder());
+
+
     }
 
     public void displayRawMaterialOrdered() {

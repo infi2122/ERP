@@ -21,29 +21,35 @@ public class ERP_Viewer {
     public void showInternalOrders(ArrayList<receiveOrder> recv, ArrayList<productionOrder> prod, ArrayList<shippingOrder> ship) {
         System.out.println("***** Internal Orders aka MES vectors *****");
         System.out.println("**** Unload Orders ****");
-        int old_id = 0;
 
-        if (recv.size() != 0) {
-            receiveOrder begin = recv.get(0);
-            receiveOrder end = new receiveOrder(0, 0,0,0);
-
-            for (receiveOrder curr : recv) {
-
-                if (old_id == curr.getOrderID()) {
-                    end = curr;
-                } else {
-                    if (end.getOrderID() != curr.getOrderID()) {
-                        System.out.println("productionID: " + begin.getOrderID() + " starts on day: " + begin.getStartDate() + " & ends on day: " + end.getStartDate());
-                        begin = curr;
-                    }
-                    old_id = curr.getOrderID();
-                }
-            }
-            if (old_id == end.getOrderID()) {
-                System.out.println("productionID: " + begin.getOrderID() + " starts on day: " + begin.getStartDate() + " & ends on day: " + end.getStartDate());
-            }
+        for (receiveOrder curr : recv) {
+            System.out.println("production ID: " + curr.getOrderID() + " starts on day: " + curr.getStartDate() +
+                    " Piece to produce: " + curr.getPieceType() + " Quantity: " + curr.getReservedQty());
         }
-        old_id = 0;
+
+//        int old_id = 0;
+//
+//        if (recv.size() != 0) {
+//            receiveOrder begin = recv.get(0);
+//            receiveOrder end = new receiveOrder(0, 0, 0, 0);
+//
+//            for (receiveOrder curr : recv) {
+//
+//                if (old_id == curr.getOrderID()) {
+//                    end = curr;
+//                } else {
+//                    if (end.getOrderID() != curr.getOrderID()) {
+//                        System.out.println("productionID: " + begin.getOrderID() + " starts on day: " + begin.getStartDate() + " & ends on day: " + end.getStartDate());
+//                        begin = curr;
+//                    }
+//                    old_id = curr.getOrderID();
+//                }
+//            }
+//            if (old_id == end.getOrderID()) {
+//                System.out.println("productionID: " + begin.getOrderID() + " starts on day: " + begin.getStartDate() + " & ends on day: " + end.getStartDate());
+//            }
+//        }
+        int old_id = 0;
         System.out.println("\n**** Production Orders ****");
         if (prod.size() != 0) {
 
@@ -91,30 +97,28 @@ public class ERP_Viewer {
         }
     }
 
-//    public void showRawMaterialArriving(ArrayList<manufacturingOrderController> allManufacturingOrders, long time) {
-//
-//        for (manufacturingOrderController curr : allManufacturingOrders) {
-//            for (rawMaterialOrder currMaterial : curr.getManufacturing_order().getRawMaterialOrder()) {
-//                if (currMaterial.getArrivalTime() == (int) time / 60) {
-//                    System.out.println("***** Raw Material Arriving *****");
-//                    System.out.println("** Piece Type: " + currMaterial.getPieceType() + " Quantity: " + currMaterial.getQty() + " **");
-//                }
-//            }
-//
-//        }
-//    }
+    public void showRawMaterialArriving(ArrayList<rawMaterialOrder> orderArrayList, long time) {
 
-    public void showRawMaterialsOrdered(ArrayList<rawMaterialOrder> arrayList){
-        for (rawMaterialOrder curr: arrayList){
-            System.out.println("***** Raw Material Ordered *****");
-            System.out.println("** Supplier: " + curr.getSupplier().getName() +
-                               " to be placed on day: " + curr.getOrderPlaceTime() +
-                               " of type: " + curr.getPieceType()+
-                               " quantity: " + curr.getQty() +
-                               " **");
+        for (rawMaterialOrder currMaterial : orderArrayList) {
+            if (currMaterial.getArrivalTime() == (int) time / 60) {
+                System.out.println("***** Raw Material Arriving *****");
+                System.out.println("** Piece Type: " + currMaterial.getPieceType() + " Quantity: " + currMaterial.getQty() + " **");
+            }
         }
+
+
     }
 
+    public void showRawMaterialsOrdered(ArrayList<rawMaterialOrder> arrayList) {
+        for (rawMaterialOrder curr : arrayList) {
+            System.out.println("***** Raw Material Ordered *****");
+            System.out.println("** Supplier: " + curr.getSupplier().getName() +
+                    " to be placed on day: " + curr.getOrderPlaceTime() +
+                    " of type: " + curr.getPieceType() +
+                    " quantity: " + curr.getQty() +
+                    " **");
+        }
+    }
 
 
 }

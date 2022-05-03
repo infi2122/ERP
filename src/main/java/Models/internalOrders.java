@@ -5,6 +5,10 @@ public class internalOrders {
     private int orderID;
     private int startDate;
 
+    public internalOrders(int orderID, int startDate) {
+        this.orderID = orderID;
+        this.startDate = startDate;
+    }
     public int getOrderID() {
         return orderID;
     }
@@ -16,11 +20,6 @@ public class internalOrders {
         return startDate;
     }
     public void setStartDate(int startDate) {
-        this.startDate = startDate;
-    }
-
-    public internalOrders(int orderID, int startDate) {
-        this.orderID = orderID;
         this.startDate = startDate;
     }
 }

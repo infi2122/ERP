@@ -63,7 +63,7 @@ public class App {
                 erp.displayInternalOrder();
                 erp.placeRawMaterialOrder();
                 erp.displayRawMaterialOrdered();
-                //erp.displayRawMaterialArriving();
+                erp.displayRawMaterialArriving();
             }
         }
 
