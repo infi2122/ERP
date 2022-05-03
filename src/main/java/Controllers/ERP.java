@@ -182,7 +182,6 @@ public class ERP {
                 // plan.get(0) retorna o unload_begin
                 int orderedQty = createRawMaterialOrder(plan.get(0), MyNewDetailedOrder);
 
-                // Modificar o createInternalOrders para criar as ordens de RECV olhando para as rawMaterialOrders
                 createInternalOrders(plan, MyNewDetailedOrder.getManufacturing_order());
 
             }
@@ -453,7 +452,6 @@ public class ERP {
                 order.getManufacturing_order().getProductionID(),
                 order.getManufacturing_order().getClientOrder().getQty(),
                 deadline - choosenSupplier.getDeliveryTime(),
-                countdays + choosenSupplier.getDeliveryTime(),
                 pieceType_to_order,
                 choosenSupplier
         ));

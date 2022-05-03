@@ -12,12 +12,12 @@ public class rawMaterialOrder {
     private int arrivalTime;
     private supplier supplier;
 
-    public rawMaterialOrder(int id,int qty,int manufacturingOrderID, int reservedQty_per_manuID, int orderPlaceTime, int arrivalTime,  int pieceType, supplier supplier) {
+    public rawMaterialOrder(int id,int qty,int manufacturingOrderID, int reservedQty_per_manuID, int orderPlaceTime,  int pieceType, supplier supplier) {
         this.id = id;
         this.qty = qty;
         this.idResQty_vec.add(new idResQty(manufacturingOrderID,reservedQty_per_manuID));
         this.timeToPlaceOrder = orderPlaceTime;
-        this.arrivalTime = arrivalTime;
+        this.arrivalTime = -1;
         this.pieceType = pieceType;
         this.supplier = supplier;
     }
