@@ -4,20 +4,30 @@ import java.util.ArrayList;
 
 public class rawMaterialOrder {
 
+    private int id;
     private int qty;
-    private int reserved_qty;
+    private ArrayList<idResQty> idResQty_vec = new ArrayList<>();
     private int pieceType;
     private int timeToPlaceOrder;
     private int arrivalTime;
     private supplier supplier;
 
-    public rawMaterialOrder(int qty, int reserved_qty, int orderPlaceTime, supplier supplier, int pieceType) {
+    public rawMaterialOrder(int id,int qty,int manufacturingOrderID, int reservedQty_per_manuID, int orderPlaceTime, int arrivalTime,  int pieceType, supplier supplier) {
+        this.id = id;
         this.qty = qty;
-        this.reserved_qty = reserved_qty;
+        this.idResQty_vec.add(new idResQty(manufacturingOrderID,reservedQty_per_manuID));
         this.timeToPlaceOrder = orderPlaceTime;
-        this.arrivalTime = -1;
+        this.arrivalTime = arrivalTime;
         this.pieceType = pieceType;
         this.supplier = supplier;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getQty() {
@@ -41,12 +51,13 @@ public class rawMaterialOrder {
         this.supplier = supplier;
     }
 
-    public int getReserved_qty() {
-        return reserved_qty;
+    public ArrayList<idResQty> getIDResQty_vec() {
+        return idResQty_vec;
     }
 
-    public void setReserved_qty(int reserved_qty) {
-        this.reserved_qty = reserved_qty;
+    public void addIDResQty_vec(int manufacturingOrder, int reservedQty) {
+
+        getIDResQty_vec().add(new idResQty(manufacturingOrder,reservedQty));
     }
 
     public int getPieceType() {

@@ -10,6 +10,7 @@ import java.util.*;
 public class higherDeadline extends orderCriterium {
 
     private class exe {
+
         public static final int oneDay = 60;
         public static final int LINEAR_t = 5;
         public static final int ROTATE_t = 7;

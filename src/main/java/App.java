@@ -1,8 +1,8 @@
 import Controllers.ERP;
-import UDP.shareResources;
+import comsProtocols.shareResources;
 import Models.higherDeadline;
-import UDP.tcpServer;
-import UDP.udpServer;
+import comsProtocols.tcpServer;
+import comsProtocols.udpServer;
 import Viewers.ERP_Viewer;
 
 import java.util.ArrayList;
@@ -37,8 +37,8 @@ public class App {
         /* *************************************** */
 
         ScheduledExecutorService schedulerERP = Executors.newScheduledThreadPool(2);
-        schedulerERP.scheduleAtFixedRate(new myTimer(erp), 0, 60, TimeUnit.SECONDS);
-        schedulerERP.scheduleAtFixedRate(new myERP(erp, shareResources), 5, 60, TimeUnit.SECONDS);
+        schedulerERP.scheduleAtFixedRate(new myTimer(erp), 0, 1, TimeUnit.SECONDS);
+        schedulerERP.scheduleAtFixedRate(new myERP(erp, shareResources), 1, 20, TimeUnit.SECONDS);
 
     }
 
@@ -57,12 +57,13 @@ public class App {
 
             synchronized (erp) {
                 erp.checkNewOrders(shareResources.getClientOrders());
+                erp.updateStockinSharedResources(shareResources);
                 erp.send2MESinteralOrders(shareResources);
                 //erp.displayManufacturingOrders();
                 erp.displayInternalOrder();
                 erp.placeRawMaterialOrder();
                 //erp.displayRawMaterialOrdered();
-                erp.displayRawMaterialArriving();
+                //erp.displayRawMaterialArriving();
             }
         }
 

@@ -28,14 +28,14 @@ public class manufacturingOrder_Viewer {
         }
     }
 
-    public void showRawMaterialOrder(rawMaterialOrder order) {
-        System.out.println("Raw Material Order");
-        System.out.println("Supplier: " + order.getSupplier().getName() +
-                " Delivery:" + order.getSupplier().getDeliveryTime() + " days" +
-                " Quantity Ordered: " + order.getQty() +
-                " Type: "+order.getPieceType() +
-                " Place order in day: " + order.getOrderPlaceTime() +
-                " Free amount: " +(order.getQty()-order.getReserved_qty()));
-    }
+//    public void showRawMaterialOrder(rawMaterialOrder order) {
+//        System.out.println("Raw Material Order");
+//        System.out.println("Supplier: " + order.getSupplier().getName() +
+//                " Delivery:" + order.getSupplier().getDeliveryTime() + " days" +
+//                " Quantity Ordered: " + order.getQty() +
+//                " Type: "+order.getPieceType() +
+//                " Place order in day: " + order.getOrderPlaceTime() +
+//                " Free amount: " +(order.getQty()-order.getReserved_qty()));
+//    }
 
 }

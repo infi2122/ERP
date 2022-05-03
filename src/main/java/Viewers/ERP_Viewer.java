@@ -25,7 +25,7 @@ public class ERP_Viewer {
 
         if (recv.size() != 0) {
             receiveOrder begin = recv.get(0);
-            receiveOrder end = new receiveOrder(0, 0);
+            receiveOrder end = new receiveOrder(0, 0,0,0);
 
             for (receiveOrder curr : recv) {
 
@@ -91,18 +91,18 @@ public class ERP_Viewer {
         }
     }
 
-    public void showRawMaterialArriving(ArrayList<manufacturingOrderController> allManufacturingOrders, long time) {
-
-        for (manufacturingOrderController curr : allManufacturingOrders) {
-            for (rawMaterialOrder currMaterial : curr.getManufacturing_order().getRawMaterialOrder()) {
-                if (currMaterial.getArrivalTime() == (int) time / 60) {
-                    System.out.println("***** Raw Material Arriving *****");
-                    System.out.println("** Piece Type: " + currMaterial.getPieceType() + " Quantity: " + currMaterial.getQty() + " **");
-                }
-            }
-
-        }
-    }
+//    public void showRawMaterialArriving(ArrayList<manufacturingOrderController> allManufacturingOrders, long time) {
+//
+//        for (manufacturingOrderController curr : allManufacturingOrders) {
+//            for (rawMaterialOrder currMaterial : curr.getManufacturing_order().getRawMaterialOrder()) {
+//                if (currMaterial.getArrivalTime() == (int) time / 60) {
+//                    System.out.println("***** Raw Material Arriving *****");
+//                    System.out.println("** Piece Type: " + currMaterial.getPieceType() + " Quantity: " + currMaterial.getQty() + " **");
+//                }
+//            }
+//
+//        }
+//    }
 
     public void showRawMaterialsOrdered(ArrayList<rawMaterialOrder> arrayList){
         for (rawMaterialOrder curr: arrayList){

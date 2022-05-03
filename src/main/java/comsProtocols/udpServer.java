@@ -1,4 +1,4 @@
-package UDP;
+package comsProtocols;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -39,7 +39,6 @@ public class udpServer {
     private static class Handler extends Thread {
 
         DatagramSocket socket;
-        byte[] rbuf = new byte[2048];
         private shareResources buffer;
 
         Handler(DatagramSocket socket, shareResources sharedBuffer) {
@@ -49,6 +48,7 @@ public class udpServer {
 
         public void run() {
 
+            byte[] rbuf = new byte[2048];
             DatagramPacket rpkt = new DatagramPacket(rbuf, rbuf.length);
 
             try {
@@ -63,7 +63,6 @@ public class udpServer {
 
             String received
                     = new String(rpkt.getData(), rpkt.getOffset(), rpkt.getLength()).trim();
-
             buffer.setClientOrders(received);
             return;
 

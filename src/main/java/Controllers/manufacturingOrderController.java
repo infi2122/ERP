@@ -54,16 +54,4 @@ public class manufacturingOrderController {
 
     }
 
-    public void displayRawMaterialOrders(){
-
-        for (rawMaterialOrder curr : getManufacturing_order().getRawMaterialOrder()){
-            getViewer().showRawMaterialOrder(curr);
-        }
-    }
-
-
-
-
-
-
 }

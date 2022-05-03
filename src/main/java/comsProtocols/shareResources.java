@@ -1,8 +1,9 @@
-package UDP;
+package comsProtocols;
 
 public class shareResources {
 
     private long startTime;
+    private String stockUpdate;
     private String internalOrdersConcat;
     private String clientOrders;
 
@@ -12,6 +13,14 @@ public class shareResources {
 
     public void setStartTime(long startTime) {
         this.startTime = startTime;
+    }
+
+    public String getStockUpdate() {
+        return stockUpdate;
+    }
+
+    public void setStockUpdate(String stockUpdate) {
+        this.stockUpdate = stockUpdate;
     }
 
     public String getInternalOrdersConcat() {

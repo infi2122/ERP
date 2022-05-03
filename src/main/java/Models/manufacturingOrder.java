@@ -10,7 +10,7 @@ public class manufacturingOrder {
     private int beginDate;
     private int endDate;
     private clientOrder clientOrder;
-    private ArrayList<rawMaterialOrder> rawMaterialOrder = new ArrayList<>();
+//    private ArrayList<rawMaterialOrder> rawMaterialOrder = new ArrayList<>();
 
     public manufacturingOrder(int productionID, Models.clientOrder clientOrder) {
         this.productionID = productionID;
@@ -25,16 +25,16 @@ public class manufacturingOrder {
         this.productionID = productionID;
     }
 
-    public ArrayList<rawMaterialOrder> getRawMaterialOrder() {
-        return rawMaterialOrder;
-    }
-
-    public boolean addNewRawMaterialOrder(rawMaterialOrder rawMaterialOrder) {
-        if (getRawMaterialOrder().add(rawMaterialOrder))
-            return true;
-        else
-            return false;
-    }
+//    public ArrayList<rawMaterialOrder> getRawMaterialOrder() {
+//        return rawMaterialOrder;
+//    }
+//
+//    public boolean addNewRawMaterialOrder(rawMaterialOrder rawMaterialOrder) {
+//        if (getRawMaterialOrder().add(rawMaterialOrder))
+//            return true;
+//        else
+//            return false;
+//    }
 
     public float getProductionTime() {
         return productionTime;

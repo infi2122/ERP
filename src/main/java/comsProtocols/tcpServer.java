@@ -1,7 +1,4 @@
-package UDP;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package comsProtocols;
 
 import java.net.*;
 import java.io.*;
@@ -59,6 +56,11 @@ public class tcpServer {
                     }
                     if (inputLine.equals("time")) {
                         out.println(erp2MES.getStartTime());
+                    }
+                    if(inputLine.equals("stockUpdate")){
+                        out.println(erp2MES.getStockUpdate());
+                        //Limpa a String
+                        erp2MES.setStockUpdate("");
                     }
                 }
 
