@@ -27,6 +27,16 @@ public class ERP_Viewer {
                     " Piece to produce: " + curr.getPieceType() + " Quantity: " + curr.getReservedQty());
         }
 
+        System.out.println("\n**** Production Orders ****");
+        for (productionOrder curr : prod) {
+            System.out.println("production ID: " + curr.getOrderID() + " starts on day: " + curr.getStartDate());
+        }
+
+        System.out.println("\n**** Shipping Orders ****");
+        for (shippingOrder curr : ship) {
+            System.out.println("production ID: " + curr.getOrderID() + " starts on day: " + curr.getStartDate());
+        }
+
 //        int old_id = 0;
 //
 //        if (recv.size() != 0) {
@@ -49,59 +59,62 @@ public class ERP_Viewer {
 //                System.out.println("productionID: " + begin.getOrderID() + " starts on day: " + begin.getStartDate() + " & ends on day: " + end.getStartDate());
 //            }
 //        }
-        int old_id = 0;
-        System.out.println("\n**** Production Orders ****");
-        if (prod.size() != 0) {
-
-            productionOrder begin2 = prod.get(0);
-            productionOrder end2 = new productionOrder(0, 0);
-
-            for (productionOrder curr : prod) {
-                if (old_id == curr.getOrderID()) {
-                    end2 = curr;
-                } else {
-                    if (end2.getOrderID() != curr.getOrderID()) {
-                        System.out.println("productionID: " + begin2.getOrderID() + " starts on day: " + begin2.getStartDate() + " & ends on day: " + end2.getStartDate());
-                        begin2 = curr;
-                    }
-                    old_id = curr.getOrderID();
-                }
-            }
-            if (old_id == end2.getOrderID()) {
-                System.out.println("productionID: " + begin2.getOrderID() + " starts on day: " + begin2.getStartDate() + " & ends on day: " + end2.getStartDate());
-            }
-        }
-
-        System.out.println("\n**** Shipping Orders ****");
-        old_id = 0;
-        if (ship.size() != 0) {
-
-            shippingOrder begin3 = ship.get(0);
-            shippingOrder end3 = new shippingOrder(0, 0);
-
-            for (shippingOrder curr : ship) {
-
-                if (old_id == curr.getOrderID()) {
-                    end3 = curr;
-                } else {
-                    if (end3.getOrderID() != curr.getOrderID()) {
-                        System.out.println("productionID: " + begin3.getOrderID() + " starts on day: " + begin3.getStartDate() + " & ends on day: " + end3.getStartDate());
-                        begin3 = curr;
-                    }
-                    old_id = curr.getOrderID();
-                }
-            }
-            if (old_id == end3.getOrderID()) {
-                System.out.println("productionID: " + begin3.getOrderID() + " starts on day: " + begin3.getStartDate() + " & ends on day: " + end3.getStartDate());
-            }
-        }
+//        int old_id = 0;
+//        System.out.println("\n**** Production Orders ****");
+//        if (prod.size() != 0) {
+//
+//            productionOrder begin2 = prod.get(0);
+//            productionOrder end2 = new productionOrder(0, 0);
+//
+//            for (productionOrder curr : prod) {
+//                if (old_id == curr.getOrderID()) {
+//                    end2 = curr;
+//                } else {
+//                    if (end2.getOrderID() != curr.getOrderID()) {
+//                        System.out.println("productionID: " + begin2.getOrderID() + " starts on day: " + begin2.getStartDate() + " & ends on day: " + end2.getStartDate());
+//                        begin2 = curr;
+//                    }
+//                    old_id = curr.getOrderID();
+//                }
+//            }
+//            if (old_id == end2.getOrderID()) {
+//                System.out.println("productionID: " + begin2.getOrderID() + " starts on day: " + begin2.getStartDate() + " & ends on day: " + end2.getStartDate());
+//            }
+//        }
+//
+//        System.out.println("\n**** Shipping Orders ****");
+//        old_id = 0;
+//        if (ship.size() != 0) {
+//
+//            shippingOrder begin3 = ship.get(0);
+//            shippingOrder end3 = new shippingOrder(0, 0);
+//
+//            for (shippingOrder curr : ship) {
+//
+//                if (old_id == curr.getOrderID()) {
+//                    end3 = curr;
+//                } else {
+//                    if (end3.getOrderID() != curr.getOrderID()) {
+//                        System.out.println("productionID: " + begin3.getOrderID() + " starts on day: " + begin3.getStartDate() + " & ends on day: " + end3.getStartDate());
+//                        begin3 = curr;
+//                    }
+//                    old_id = curr.getOrderID();
+//                }
+//            }
+//            if (old_id == end3.getOrderID()) {
+//                System.out.println("productionID: " + begin3.getOrderID() + " starts on day: " + begin3.getStartDate() + " & ends on day: " + end3.getStartDate());
+//            }
+//        }
     }
 
-    public void showRawMaterialArriving(ArrayList<rawMaterialOrder> orderArrayList, long time) {
-
-        for (rawMaterialOrder currMaterial : orderArrayList) {
-            if (currMaterial.getArrivalTime() == (int) time / 60) {
-                System.out.println("***** Raw Material Arriving *****");
+    public void showRawMaterialArriving(ArrayList<rawMaterialOrder> rawMaterialOrders, int currDay) {
+        boolean first = true;
+        for (rawMaterialOrder currMaterial : rawMaterialOrders) {
+            if (currMaterial.getArrivalTime() == currDay) {
+                if (first) {
+                    System.out.println("***** Raw Material Arriving --> Should put the pieces in the conveyor *****");
+                    first = false;
+                }
                 System.out.println("** Piece Type: " + currMaterial.getPieceType() + " Quantity: " + currMaterial.getQty() + " **");
             }
         }

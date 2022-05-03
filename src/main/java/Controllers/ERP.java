@@ -559,9 +559,13 @@ public class ERP {
 
         }
         shareResources.setStockUpdate(updateString);
-        System.out.println("Update String: " + shareResources.getStockUpdate());
+
+        if (shareResources.getStockUpdate() != null)
+            System.out.println("Update String: " + shareResources.getStockUpdate());
         getStockUpdaters().removeAll(getStockUpdaters());
-        System.out.println("Vetor stockUpdater size: " + getStockUpdaters().size());
+
+        if (getStockUpdaters().size() != 0)
+            System.out.println("Vetor stockUpdater size: " + getStockUpdaters().size());
     }
 
     private ArrayList<checkPendingRawMaterialOrderStruct> checkPendingRawMaterialOrder(int type, int qty, int deadline) {
@@ -664,7 +668,7 @@ public class ERP {
 
     public void displayRawMaterialArriving() {
 
-        getErp_viewer().showRawMaterialArriving(getRawMaterialOrders(), getTime());
+        getErp_viewer().showRawMaterialArriving(getRawMaterialOrders(), countdays);
 
 
     }
@@ -672,7 +676,6 @@ public class ERP {
     public void displayInternalOrder() {
 
         getErp_viewer().showInternalOrders(getReceiveOrder(), getProductionOrder(), getShippingOrder());
-
 
     }
 
