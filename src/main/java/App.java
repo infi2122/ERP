@@ -27,8 +27,8 @@ public class App {
         //sql.createSQLtables();
 
         /* TCP/IP for MES communications */
-//        tcpServer MESserver = new tcpServer();
-//        MESserver.start(portMES, shareResources);
+        tcpServer MESserver = new tcpServer();
+        MESserver.start(portMES, shareResources);
         /* *************************************** */
 
         /* UDP Listener for new orders */
@@ -38,32 +38,27 @@ public class App {
 
         ScheduledExecutorService schedulerERP = Executors.newScheduledThreadPool(2);
         schedulerERP.scheduleAtFixedRate(new myTimer(erp), 0, 1, TimeUnit.SECONDS);
-        schedulerERP.scheduleAtFixedRate(new myERP(erp, shareResources), 0, 60, TimeUnit.SECONDS);
+        schedulerERP.scheduleAtFixedRate(new myERP(erp), 0, 60, TimeUnit.SECONDS);
 
     }
 
     private static class myERP extends Thread {
 
         private final ERP erp;
-        private shareResources shareResources;
 
-        public myERP(ERP erp1, shareResources shared) {
+        public myERP(ERP erp1) {
             this.erp = erp1;
-            this.shareResources = shared;
+
         }
 
         @Override
         public void run() {
 
             synchronized (erp) {
-                erp.checkNewOrders(shareResources.getClientOrders());
-                erp.updateStockinSharedResources(shareResources);
-                //erp.send2MESinteralOrders(shareResources);
-                //erp.displayManufacturingOrders();
+                erp.checkNewOrders();
+                erp.send2MESinteralOrders();
                 erp.displayInternalOrder();
-//               erp.placeRawMaterialOrder();
-                //erp.displayRawMaterialOrdered();
-               // erp.displayRawMaterialArriving();
+                erp.displayRawMaterialArriving();
             }
         }
 

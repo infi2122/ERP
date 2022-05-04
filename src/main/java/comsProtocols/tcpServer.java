@@ -57,9 +57,7 @@ public class tcpServer {
                     if (inputLine.equals("time")) {
                         out.println(erp2MES.getStartTime());
                     }
-                    if(inputLine.equals("stockUpdate")){
-                        out.println(erp2MES.getStockUpdate());
-                    }
+
                 }
 
                 in.close();

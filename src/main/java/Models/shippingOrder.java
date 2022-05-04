@@ -16,7 +16,7 @@ public class shippingOrder {
         return manufacturingID;
     }
 
-    public int getQuantity() {
+    public int getQty() {
         return quantity;
     }
 

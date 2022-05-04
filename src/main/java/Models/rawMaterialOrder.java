@@ -22,7 +22,7 @@ public class rawMaterialOrder {
         this.supplier = supplier;
     }
 
-    public int getId() {
+    public int getID() {
         return id;
     }
 
