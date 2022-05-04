@@ -10,10 +10,7 @@ import java.util.ArrayList;
 
 public class manufacturingOrder_Viewer {
 
-    public void showManufacturingOrder(manufacturingOrder order, clientOrderController clientOrderController) {
-        System.out.print("Production Time: " + order.getProductionTime());
-        clientOrderController.getViewer().showClientOrder(order.getClientOrder());
-    }
+
 
     public void showSuppliersItems(ArrayList<supplier> suppliers) {
 

@@ -1,11 +1,11 @@
 package Models;
 
-public class idResQty {
+public class productionInRawMaterials {
 
     private int orderID;
     private int reservedQty;
 
-    public idResQty(int orderID, int reservedQty) {
+    public productionInRawMaterials(int orderID, int reservedQty) {
         this.orderID = orderID;
         this.reservedQty = reservedQty;
     }

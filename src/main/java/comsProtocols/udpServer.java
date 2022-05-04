@@ -13,7 +13,7 @@ public class udpServer {
 
     /* Thread timing */
     private int initialDelay = 0;
-    private int periodicDelay = 55;
+    private int periodicDelay = 1;
 
     private DatagramSocket socket;
 
@@ -52,6 +52,7 @@ public class udpServer {
             DatagramPacket rpkt = new DatagramPacket(rbuf, rbuf.length);
 
             try {
+
                 socket.receive(rpkt);
             } catch (IOException e) {
                 e.printStackTrace();

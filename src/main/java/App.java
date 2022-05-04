@@ -27,8 +27,8 @@ public class App {
         //sql.createSQLtables();
 
         /* TCP/IP for MES communications */
-        tcpServer MESserver = new tcpServer();
-        MESserver.start(portMES, shareResources);
+//        tcpServer MESserver = new tcpServer();
+//        MESserver.start(portMES, shareResources);
         /* *************************************** */
 
         /* UDP Listener for new orders */
@@ -38,7 +38,7 @@ public class App {
 
         ScheduledExecutorService schedulerERP = Executors.newScheduledThreadPool(2);
         schedulerERP.scheduleAtFixedRate(new myTimer(erp), 0, 1, TimeUnit.SECONDS);
-        schedulerERP.scheduleAtFixedRate(new myERP(erp, shareResources), 1, 20, TimeUnit.SECONDS);
+        schedulerERP.scheduleAtFixedRate(new myERP(erp, shareResources), 0, 60, TimeUnit.SECONDS);
 
     }
 
@@ -58,12 +58,12 @@ public class App {
             synchronized (erp) {
                 erp.checkNewOrders(shareResources.getClientOrders());
                 erp.updateStockinSharedResources(shareResources);
-                erp.send2MESinteralOrders(shareResources);
+                //erp.send2MESinteralOrders(shareResources);
                 //erp.displayManufacturingOrders();
                 erp.displayInternalOrder();
-                erp.placeRawMaterialOrder();
+//               erp.placeRawMaterialOrder();
                 //erp.displayRawMaterialOrdered();
-                erp.displayRawMaterialArriving();
+               // erp.displayRawMaterialArriving();
             }
         }
 

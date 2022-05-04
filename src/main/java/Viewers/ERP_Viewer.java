@@ -1,10 +1,9 @@
 package Viewers;
 
-import Controllers.ERP;
 import Controllers.manufacturingOrderController;
+import Models.productionInRawMaterials;
 import Models.productionOrder;
 import Models.rawMaterialOrder;
-import Models.receiveOrder;
 import Models.shippingOrder;
 
 import java.util.ArrayList;
@@ -13,29 +12,34 @@ public class ERP_Viewer {
 
     public void showManufacturingOrders(ArrayList<manufacturingOrderController> arrayList) {
         System.out.println("Details on the Manufacturing Order");
-        for (manufacturingOrderController curr : arrayList) {
-            curr.getViewer().showManufacturingOrder(curr.getManufacturing_order(), curr.getClientOrderController());
-        }
+//        for (manufacturingOrderController curr : arrayList) {
+//            curr.getViewer().showManufacturingOrder(curr.getManufacturing_order(), curr.getClientOrderController());
+//        }
     }
 
-    public void showInternalOrders(ArrayList<receiveOrder> recv, ArrayList<productionOrder> prod, ArrayList<shippingOrder> ship) {
+    public void showInternalOrders(ArrayList<rawMaterialOrder> recv, ArrayList<productionOrder> prod, ArrayList<shippingOrder> ship) {
         System.out.println("***** Internal Orders aka MES vectors *****");
-        System.out.println("**** Unload Orders ****");
+        System.out.println("**** Raw Material Orders ****");
 
-        for (receiveOrder curr : recv) {
-            System.out.println("production ID: " + curr.getOrderID() + " starts on day: " + curr.getStartDate() +
-                    " Piece to produce: " + curr.getPieceType() + " Quantity: " + curr.getReservedQty());
+        for (rawMaterialOrder curr : recv) {
+            System.out.println("*** rawMaterial ID: " + curr.getId() + " arrives on day: " + curr.getArrivalTime() +
+                    " Type: " + curr.getPieceType() + " Quantity: " + curr.getQty() +" ***");
+
+            for(productionInRawMaterials curr2: curr.getProductionInRawMaterials()){
+                System.out.println("**** manufacuringID: " + curr2.getOrderID() + " quantity: " + curr2.getReservedQty() + " ****" );
+            }
         }
 
         System.out.println("\n**** Production Orders ****");
         for (productionOrder curr : prod) {
-            System.out.println("production ID: " + curr.getOrderID() + " starts on day: " + curr.getStartDate());
+            System.out.println("manufacuringID: " + curr.getManufacturingID() + " starts on day: " + curr.getStartProdutionDate());
         }
 
         System.out.println("\n**** Shipping Orders ****");
         for (shippingOrder curr : ship) {
-            System.out.println("production ID: " + curr.getOrderID() + " starts on day: " + curr.getStartDate());
+            System.out.println("manufacuringID: " + curr.getManufacturingID() + " starts on day: " + curr.getStartShippingDate());
         }
+    }
 
 //        int old_id = 0;
 //
@@ -105,8 +109,8 @@ public class ERP_Viewer {
 //                System.out.println("productionID: " + begin3.getOrderID() + " starts on day: " + begin3.getStartDate() + " & ends on day: " + end3.getStartDate());
 //            }
 //        }
-    }
-
+//    }
+//
     public void showRawMaterialArriving(ArrayList<rawMaterialOrder> rawMaterialOrders, int currDay) {
         boolean first = true;
         for (rawMaterialOrder currMaterial : rawMaterialOrders) {

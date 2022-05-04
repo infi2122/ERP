@@ -1,18 +1,21 @@
 package Models;
 
 
-import java.util.ArrayList;
-
 public class manufacturingOrder {
 
     private int productionID;
+    private int expectedRawMaterialArrival;
+    private int expectedProdutionStart;
+    private int expectedShippingStart;
     private float productionTime;
-    private int beginDate;
-    private int endDate;
+    private int entryWHarrival_t;
+    private int productionStart_t;
+    private int productionEnd_t;
+    private int shippingStar_t;
+    private int shippingEnd_t;
     private clientOrder clientOrder;
-//    private ArrayList<rawMaterialOrder> rawMaterialOrder = new ArrayList<>();
 
-    public manufacturingOrder(int productionID, Models.clientOrder clientOrder) {
+    public manufacturingOrder(int productionID, clientOrder clientOrder) {
         this.productionID = productionID;
         this.clientOrder = clientOrder;
     }
@@ -21,20 +24,29 @@ public class manufacturingOrder {
         return productionID;
     }
 
-    public void setProductionID(int productionID) {
-        this.productionID = productionID;
+    public int getExpectedRawMaterialArrival() {
+        return expectedRawMaterialArrival;
     }
 
-//    public ArrayList<rawMaterialOrder> getRawMaterialOrder() {
-//        return rawMaterialOrder;
-//    }
-//
-//    public boolean addNewRawMaterialOrder(rawMaterialOrder rawMaterialOrder) {
-//        if (getRawMaterialOrder().add(rawMaterialOrder))
-//            return true;
-//        else
-//            return false;
-//    }
+    public void setExpectedRawMaterialArrival(int expectedRawMaterialArrival) {
+        this.expectedRawMaterialArrival = expectedRawMaterialArrival;
+    }
+
+    public int getExpectedProdutionStart() {
+        return expectedProdutionStart;
+    }
+
+    public void setExpectedProdutionStart(int expectedProdutionStart) {
+        this.expectedProdutionStart = expectedProdutionStart;
+    }
+
+    public int getExpectedShippingStart() {
+        return expectedShippingStart;
+    }
+
+    public void setExpectedShippingStart(int expectedShippingStart) {
+        this.expectedShippingStart = expectedShippingStart;
+    }
 
     public float getProductionTime() {
         return productionTime;
@@ -44,29 +56,50 @@ public class manufacturingOrder {
         this.productionTime = productionTime;
     }
 
-    public int getBeginDate() {
-        return beginDate;
+    public int getEntryWHarrival_t() {
+        return entryWHarrival_t;
     }
 
-    public void setBeginDate(int beginDate) {
-        this.beginDate = beginDate;
+    public void setEntryWHarrival_t(int entryWHarrival_t) {
+        this.entryWHarrival_t = entryWHarrival_t;
     }
 
-    public int getEndDate() {
-        return endDate;
+    public int getProductionStart_t() {
+        return productionStart_t;
     }
 
-    public void setEndDate(int endDate) {
-        this.endDate = endDate;
+    public void setProductionStart_t(int productionStart_t) {
+        this.productionStart_t = productionStart_t;
+    }
+
+    public int getProductionEnd_t() {
+        return productionEnd_t;
+    }
+
+    public void setProductionEnd_t(int productionEnd_t) {
+        this.productionEnd_t = productionEnd_t;
+    }
+
+    public int getShippingStar_t() {
+        return shippingStar_t;
+    }
+
+    public void setShippingStar_t(int shippingStar_t) {
+        this.shippingStar_t = shippingStar_t;
+    }
+
+    public int getShippingEnd_t() {
+        return shippingEnd_t;
+    }
+
+    public void setShippingEnd_t(int shippingEnd_t) {
+        this.shippingEnd_t = shippingEnd_t;
     }
 
     public clientOrder getClientOrder() {
         return clientOrder;
     }
 
-    public void setClientOrder(clientOrder clientOrder) {
-        this.clientOrder = clientOrder;
-    }
 
 
 

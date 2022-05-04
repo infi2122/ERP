@@ -6,7 +6,7 @@ public class rawMaterialOrder {
 
     private int id;
     private int qty;
-    private ArrayList<idResQty> idResQty_vec = new ArrayList<>();
+    private ArrayList<productionInRawMaterials> idResQty_vec = new ArrayList<>();
     private int pieceType;
     private int timeToPlaceOrder;
     private int arrivalTime;
@@ -15,9 +15,9 @@ public class rawMaterialOrder {
     public rawMaterialOrder(int id,int qty,int manufacturingOrderID, int reservedQty_per_manuID, int orderPlaceTime,  int pieceType, supplier supplier) {
         this.id = id;
         this.qty = qty;
-        this.idResQty_vec.add(new idResQty(manufacturingOrderID,reservedQty_per_manuID));
+        this.idResQty_vec.add(new productionInRawMaterials(manufacturingOrderID,reservedQty_per_manuID));
         this.timeToPlaceOrder = orderPlaceTime;
-        this.arrivalTime = -1;
+        this.arrivalTime = orderPlaceTime + supplier.getDeliveryTime();
         this.pieceType = pieceType;
         this.supplier = supplier;
     }
@@ -51,13 +51,13 @@ public class rawMaterialOrder {
         this.supplier = supplier;
     }
 
-    public ArrayList<idResQty> getIDResQty_vec() {
+    public ArrayList<productionInRawMaterials> getProductionInRawMaterials() {
         return idResQty_vec;
     }
 
-    public void addIDResQty_vec(int manufacturingOrder, int reservedQty) {
+    public void addProductionInRawMaterials(int manufacturingOrder, int reservedQty) {
 
-        getIDResQty_vec().add(new idResQty(manufacturingOrder,reservedQty));
+        getProductionInRawMaterials().add(new productionInRawMaterials(manufacturingOrder,reservedQty));
     }
 
     public int getPieceType() {
