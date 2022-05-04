@@ -1,8 +1,8 @@
 import Controllers.ERP;
-import UDP.shareResources;
+import comsProtocols.shareResources;
 import Models.higherDeadline;
-import UDP.tcpServer;
-import UDP.udpServer;
+import comsProtocols.tcpServer;
+import comsProtocols.udpServer;
 import Viewers.ERP_Viewer;
 
 import java.util.ArrayList;
@@ -37,31 +37,27 @@ public class App {
         /* *************************************** */
 
         ScheduledExecutorService schedulerERP = Executors.newScheduledThreadPool(2);
-        schedulerERP.scheduleAtFixedRate(new myTimer(erp), 0, 60, TimeUnit.SECONDS);
-        schedulerERP.scheduleAtFixedRate(new myERP(erp, shareResources), 5, 60, TimeUnit.SECONDS);
+        schedulerERP.scheduleAtFixedRate(new myTimer(erp), 0, 1, TimeUnit.SECONDS);
+        schedulerERP.scheduleAtFixedRate(new myERP(erp), 0, 60, TimeUnit.SECONDS);
 
     }
 
     private static class myERP extends Thread {
 
         private final ERP erp;
-        private shareResources shareResources;
 
-        public myERP(ERP erp1, shareResources shared) {
+        public myERP(ERP erp1) {
             this.erp = erp1;
-            this.shareResources = shared;
+
         }
 
         @Override
         public void run() {
 
             synchronized (erp) {
-                erp.checkNewOrders(shareResources.getClientOrders());
-                erp.send2MESinteralOrders(shareResources);
-                //erp.displayManufacturingOrders();
+                erp.checkNewOrders();
+                erp.send2MESinteralOrders();
                 erp.displayInternalOrder();
-                erp.placeRawMaterialOrder();
-                //erp.displayRawMaterialOrdered();
                 erp.displayRawMaterialArriving();
             }
         }

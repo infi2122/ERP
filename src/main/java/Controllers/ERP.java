@@ -1,13 +1,13 @@
 package Controllers;
 
-import UDP.shareResources;
+import comsProtocols.shareResources;
 import Models.*;
 import Readers.suppliersList;
 import Readers.xmlReader;
 import Viewers.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Vector;
 
 public class ERP {
@@ -17,31 +17,19 @@ public class ERP {
     private int countdays = 0;
     private int dayBefore = -1;
 
-
-    private static class exe {
-        public static final int oneDay = 60;
-        public static final int internalOrders_target = 2; // #days to send orders for MES
-    }
-
-    private static class executionPeriocity {
-        public static final int checkOrder_t = 5;
-        public static final int placeRawMaterialOrder_t = 50;
-        public static final int displayManufacturingOrders_t = 8;
-        public static final int displayRawMaterialArriving_t = 30;
-        public static final int displayInternalOrders_t = 60;
-        public static final int sendInternalOrdersToMES = exe.oneDay;
-    }
+    public final int oneDay = 60;
+    public final int internalOrders_target = 1; // #days to send orders for MES
 
     // ******* ATTRIBUTES ********
     private long currentTime;
     private shareResources shareResources;
     private orderCriterium orderCriterium;
     private ArrayList<manufacturingOrderController> manufacturingOrders;
-    private ERP_Viewer erp_viewer;
-    private ArrayList<receiveOrder> receiveOrder;
-    private ArrayList<productionOrder> productionOrder;
-    private ArrayList<shippingOrder> shippingOrder;
+    private ArrayList<rawMaterialOrder> rawMaterialOrders;
+    private ArrayList<productionOrder> productionOrders;
+    private ArrayList<shippingOrder> shippingOrders;
 
+    private ERP_Viewer erp_viewer;
 
     // ******* CONSTRUCTOR ********
     public ERP(orderCriterium orderCriterium, ArrayList<manufacturingOrderController> manufacturingOrderControllers,
@@ -50,10 +38,13 @@ public class ERP {
         this.manufacturingOrders = manufacturingOrderControllers;
         this.erp_viewer = erp_viewer;
         this.shareResources = sharedResources;
-        this.receiveOrder = new ArrayList<>();
-        this.productionOrder = new ArrayList<>();
-        this.shippingOrder = new ArrayList<>();
+        this.rawMaterialOrders = new ArrayList<>();
+        this.productionOrders = new ArrayList<>();
+        this.shippingOrders = new ArrayList<>();
+
+
     }
+
 
     public long getTime() {
         return currentTime;
@@ -61,6 +52,10 @@ public class ERP {
 
     public void setCurrentTime(long currentTime) {
         this.currentTime = currentTime;
+    }
+
+    public comsProtocols.shareResources getShareResources() {
+        return shareResources;
     }
 
     public orderCriterium getOrderCriterium() {
@@ -87,32 +82,32 @@ public class ERP {
         this.erp_viewer = erp_viewer;
     }
 
-    public ArrayList<receiveOrder> getReceiveOrder() {
-        return receiveOrder;
+
+    public ArrayList<rawMaterialOrder> getRawMaterialOrders() {
+        return rawMaterialOrders;
     }
 
-    public boolean addReceiveOrder(receiveOrder NewReceiveOrder) {
-        return getReceiveOrder().add(NewReceiveOrder);
-
+    public void addNewRawMaterialOrder(rawMaterialOrder newRawMaterialOrder) {
+        getRawMaterialOrders().add(newRawMaterialOrder);
     }
 
-    public ArrayList<productionOrder> getProductionOrder() {
-        return productionOrder;
+    public ArrayList<productionOrder> getProductionOrders() {
+        return productionOrders;
     }
 
-    public boolean addProductionOrder(productionOrder NewProductionOrder) {
-        return getProductionOrder().add(NewProductionOrder);
+    public void addNewProductionOrder(productionOrder newProductionOrder) {
+        getProductionOrders().add(newProductionOrder);
     }
 
-    public ArrayList<shippingOrder> getShippingOrder() {
-        return shippingOrder;
+    public ArrayList<shippingOrder> getShippingOrders() {
+        return shippingOrders;
     }
 
-    public boolean addShippingOrder(shippingOrder NewShippingOrder) {
-        return getShippingOrder().add(NewShippingOrder);
-
+    public void addNewShippingOrders(shippingOrder newShippingOrder) {
+        getShippingOrders().add(newShippingOrder);
     }
 
+    // Inner Classes
 
     // ******** METHODS *********
 
@@ -129,9 +124,8 @@ public class ERP {
 
             if (time >= getTime() * 1000 + startTime + 1000) {
                 setCurrentTime((time - startTime) / 1000);
-
-                if ((int) getTime() / exe.oneDay > countdays) {
-                    countdays = (int) getTime() / exe.oneDay;
+                if ((int) getTime() / oneDay > countdays) {
+                    countdays = (int) getTime() / oneDay;
                     System.out.println("Current Day: " + countdays);
                 }
             }
@@ -142,27 +136,21 @@ public class ERP {
     /**
      * Checks if exists new orders in the stack of share resources of communications
      *
-     * @param sharedResource
      * @return
      */
-    public boolean checkNewOrders(String sharedResource) {
-
-        boolean detectedNewOrders = false;
+    public void checkNewOrders() {
 
         xmlReader reader = new xmlReader();
-        ArrayList<clientOrder> ordersVec = reader.readOrder(sharedResource);
+        ArrayList<clientOrder> ordersVec = reader.readOrder(getShareResources().getClientOrders());
 
         if (ordersVec == null)
-            return false;
+            return;
 
         for (clientOrder currOrder : ordersVec) {
 
             if (!check_if_clientOrder_have_manufacturingOrder(currOrder, getManufacturingOrders())) {
-                detectedNewOrders = true;
 
-                // The orderID will be of type xyy, where x is the expected final piece and the yy is the orderID it self
-
-                int orderID = currOrder.getPieceType() * 100 + getManufacturingOrders().size();
+                int orderID = getManufacturingOrders().size();
 
                 manufacturingOrderController MyNewDetailedOrder =
                         new manufacturingOrderController(new manufacturingOrder(orderID, currOrder),
@@ -173,41 +161,31 @@ public class ERP {
                 if (!addDetailedOrder(MyNewDetailedOrder))
                     System.out.println("Error adding new detailed order to manufacturingOrderController !");
 
-
                 Vector<Integer> plan = getOrderCriterium().scheduler(MyNewDetailedOrder, getTime());
-                //int rawmaterialdelivery = estimatePlan(MyNewDetailedOrder);
-                createInternalOrders(plan, MyNewDetailedOrder.getManufacturing_order().getProductionID());
 
-                // plan.get(0) retorna o unload_begin
-                createRawMaterialOrder(plan.get(0), MyNewDetailedOrder);
+                // SET manufacturing plan on manufacturing order
+                // SET expected Raw Material Arrival
+                MyNewDetailedOrder.getManufacturing_order().setExpectedRawMaterialArrival(plan.get(0));
+                // SET expected production start
+                MyNewDetailedOrder.getManufacturing_order().setExpectedProdutionStart(plan.get(2));
+                // SET expected shipping start
+                MyNewDetailedOrder.getManufacturing_order().setExpectedShippingStart(plan.get(4));
 
+                // Associa as RawmaterialOrders com diferentes quantidade de materias primas
+                // retorna essa relação
+                ArrayList<rawMaterialOrderID_QtyRawMaterial> vec = createRawMaterialOrder(MyNewDetailedOrder);
+
+                // Cria as PorductionOrders
+                createProductionOrders(MyNewDetailedOrder, vec);
+
+                // Cria as Shipping Orders
+                createShippingOrders(MyNewDetailedOrder);
             }
         }
 
         getOrderCriterium().ordering(getManufacturingOrders());
-
-        return detectedNewOrders;
+        return;
     }
-
-    /**
-     * Todos os dias faz as encomendas necessárias aos fornecedores
-     */
-    public void placeRawMaterialOrder() {
-
-        if (getTime() % executionPeriocity.placeRawMaterialOrder_t == 0) {
-
-            for (manufacturingOrderController curr : getManufacturingOrders()) {
-                for (rawMaterialOrder currMaterial : curr.getManufacturing_order().getRawMaterialOrder()) {
-                    if (currMaterial.getOrderPlaceTime() == getTime() / exe.oneDay) {
-                        currMaterial.setArrivalTime(currMaterial.getSupplier().getDeliveryTime() + (int) (getTime() / exe.oneDay));
-                    }
-                }
-
-            }
-
-        }
-    }
-
 
     private boolean check_if_clientOrder_have_manufacturingOrder
             (clientOrder order, ArrayList<manufacturingOrderController> manufacturingOrders) {
@@ -219,165 +197,233 @@ public class ERP {
                 }
 
             }
-
         }
         return false;
     }
 
 
     /**
-     * @param vector
-     * @param productionID
+     * Cria as rawMaterialsOrders para o ERP que serão enviadas (da forma pretendida) para o MES
+     *
+     * @param order manufacturingOrderController
+     * @return Retorna a ligação entre rawMaterialOrders e manufacturingOrders
      */
-    public void createInternalOrders(Vector<Integer> vector, int productionID) {
-        // Para o ReceiveOrder
-        int i = 0;
-        while (i <= vector.get(1) - vector.get(0)) {
-            getReceiveOrder().add(new receiveOrder(productionID, vector.get(0) + i));
-            i++;
-        }
-        // Para o ProductionOrder
-        i = 0;
-        while (i <= vector.get(3) - vector.get(2)) {
-            getProductionOrder().add(new productionOrder(productionID, vector.get(2) + i));
-            i++;
-        }
-        // Para o ShippingOrder
-        i = 0;
-        while (i <= vector.get(5) - vector.get(4)) {
-            getShippingOrder().add(new shippingOrder(productionID, vector.get(4) + i));
-            i++;
-        }
+    public ArrayList<rawMaterialOrderID_QtyRawMaterial> createRawMaterialOrder(manufacturingOrderController order) {
+        try {
+            int deadline = order.getManufacturing_order().getExpectedRawMaterialArrival();
+            int manufacturingID = order.getManufacturing_order().getProductionID();
+            // O objetivo é retornar apenas as encomendas que interessam
+            ArrayList<rawMaterialOrder> selection = new ArrayList<>(getRawMaterialOrders());
 
-    }
+            // Elimina aquelas que são de outro tipo
+            int type = order.getClientOrderController().getClientOrder().getPieceType();
+            if (type == 6 || type == 8)
+                type = 1;
+            else
+                type = 2;
 
-    /**
-     * @return Encomendas realizadas à espera de serem entregues
-     */
-    public ArrayList<rawMaterialOrder> allMaterialsOrdered() {
+            Iterator<rawMaterialOrder> iterator = selection.iterator();
+            while (iterator.hasNext()) {
+                rawMaterialOrder temp = iterator.next();
+                if (temp.getPieceType() != type) {
+                    iterator.remove();
+                }
+            }
 
-        ArrayList<rawMaterialOrder> arrayList = new ArrayList<>();
+            iterator = selection.iterator();
+            // Elimina aquelas que têm um prazo de entrega maior que o deadline
+            while (iterator.hasNext()) {
+                rawMaterialOrder temp = iterator.next();
+                if (temp.getArrivalTime() > deadline) {
+                    iterator.remove();
+                }
+            }
 
-        for (manufacturingOrderController currOrder : getManufacturingOrders()) {
-            for (rawMaterialOrder currMaterial : currOrder.getManufacturing_order().getRawMaterialOrder()) {
-                arrayList.add(currMaterial);
+            // Fica apenas com as rawMaterialOrders que têm peças de sobra
+            iterator = selection.iterator();
+            while (iterator.hasNext()) {
+                rawMaterialOrder temp = iterator.next();
+                int piecesUsed = 0;
+                for (productionInRawMaterials curr2 : temp.getProductionInRawMaterials()) {
+                    piecesUsed += curr2.getReservedQty();
+                }
+                if (piecesUsed == temp.getQty()) {
+                    iterator.remove();
+                }
+            }
+
+
+            // Se sobrar algo da filtragem, então vou atribuir rawMaterialOrders existentes
+            // a esta nova manufacturingID, portanto vou adicionar essas atribuiçoes num vetor
+            // de retorno para o production order
+            int necessaryQty = order.getClientOrderController().getClientOrder().getQty();
+            ArrayList<rawMaterialOrderID_QtyRawMaterial> returnVec = new ArrayList<>();
+            if (selection.size() != 0) {
+
+                for (rawMaterialOrder curr : selection) {
+                    int piecesUsed = 0;
+                    for (productionInRawMaterials curr2 : curr.getProductionInRawMaterials()) {
+                        piecesUsed += curr2.getReservedQty();
+                    }
+
+                    int availablePieces = curr.getQty() - piecesUsed;
+
+                    if (availablePieces >= necessaryQty) {
+                        curr.addProductionInRawMaterials(manufacturingID, necessaryQty);
+                        returnVec.add(new rawMaterialOrderID_QtyRawMaterial(curr.getID(), necessaryQty));
+                        return returnVec;
+                    } else {
+                        curr.addProductionInRawMaterials(manufacturingID, availablePieces);
+                        returnVec.add(new rawMaterialOrderID_QtyRawMaterial(curr.getID(), availablePieces));
+                        necessaryQty = necessaryQty - availablePieces;
+                    }
+                }
 
             }
-        }
+            // Se o vetor resultante desta seleção estiver vazio, ou se nao tiver peças em stock suficientes para fazer a encomenda
+            // então preciso de fazer nova rawMaterialOrder
 
-        return arrayList;
+            // Para isso tenho de escolher o supplier
+            ArrayList<supplier> suppliers = new suppliersList().availableSuppliers();
+            supplier choosenSupplier = new supplier();
+
+            for (supplier curr : suppliers) {
+                if (curr.getDeliveryTime() + (int) (getTime() / 60) < deadline) {
+                    choosenSupplier = curr;
+                    break;
+                }
+            }
+            // Se o deadline for menor que o tempo que demora, entao escolho o supplier que entrega mais rapido --> SupplierC
+            if (choosenSupplier == null)
+                choosenSupplier = suppliers.get(2);
+
+            int qtyToOrder = necessaryQty;
+            if (choosenSupplier.getMinQty() > qtyToOrder) {
+                qtyToOrder = choosenSupplier.getMinQty();
+            }
+
+            rawMaterialOrder newOrder = new rawMaterialOrder(
+                    getRawMaterialOrders().size(),
+                    qtyToOrder,
+                    manufacturingID,
+                    necessaryQty,
+                    deadline - choosenSupplier.getDeliveryTime(),
+                    type,
+                    choosenSupplier);
+
+            addNewRawMaterialOrder(newOrder);
+
+            returnVec.add(new rawMaterialOrderID_QtyRawMaterial(newOrder.getID(), necessaryQty));
+
+            return returnVec;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
-     * @param deadline
+     * Cria as productionOrders para o ERP que serão enviadas (da forma pretendida) para o MES
+     *
+     * @param order manufacturingOrderController
+     * @param vec   Retorna a ligação entre cada manufacturingOrder e as diferentes rawMaterialOrders e quantidades
+     */
+    public void createProductionOrders(manufacturingOrderController order, ArrayList<rawMaterialOrderID_QtyRawMaterial> vec) {
+
+        productionOrder newProductionOrder = new productionOrder(
+                order.getManufacturing_order().getProductionID(),
+                order.getManufacturing_order().getClientOrder().getQty(),
+                order.getManufacturing_order().getClientOrder().getPieceType(),
+                order.getManufacturing_order().getExpectedProdutionStart(),
+                vec
+
+        );
+
+        addNewProductionOrder(newProductionOrder);
+
+    }
+
+    /**
+     * Cria as shippingOrders para o ERP que serão enviadas (da forma pretendida) para o MES
+     *
      * @param order
-     * @return #dias para a encomenda ser feita
      */
+    public void createShippingOrders(manufacturingOrderController order) {
 
-    public int createRawMaterialOrder(int deadline, manufacturingOrderController order) {
+        shippingOrder newShippingOrder = new shippingOrder(
+                order.getManufacturing_order().getProductionID(),
+                order.getManufacturing_order().getClientOrder().getQty(),
+                order.getManufacturing_order().getExpectedShippingStart()
+        );
+        addNewShippingOrders(newShippingOrder);
 
-        // Primeiro checka se tem peças em stock nos armazens
-        int stock = 0;
-        // Depois checka as peças que estao encomendadas, para ver se chega
-        int pieces_ordered = 0;
-        //Por fim encomenda o execedente
-
-        // Encontrar o fornecedor face ao tempo
-        ArrayList<supplier> suppliers = new suppliersList().availableSuppliers();
-        supplier choosenSupplier = new supplier();
-
-        for (supplier curr : suppliers) {
-            if (curr.getDeliveryTime() + (int) (getTime() / 60) < deadline) {
-                choosenSupplier = curr;
-                break;
-            }
-        }
-        /*System.out.println("chosen supplier "+choosenSupplier.getName() + "for order " + order.getManufacturing_order().getClientOrder().getOrderNum() +
-                "of " + order.getManufacturing_order().getClientOrder().getClientName());*/
-
-        // ao fazer o break garante-se que se escolhe sempre o fornecedor que demora mais a entregar logo o que sai mais barato
-
-        // encomendar o nº de peças necessárias
-        int qty_to_order = 0;
-        if (choosenSupplier.getMinQty() > order.getManufacturing_order().getClientOrder().getQty()) {
-            qty_to_order = choosenSupplier.getMinQty();
-        } else {
-            qty_to_order = order.getManufacturing_order().getClientOrder().getQty();
-        }
-
-        // Saber qual o tipo de peça 1 -> P6 e P8 ou 2-> Outras
-        int pieceType_to_order = 0;
-        if (order.getManufacturing_order().getClientOrder().getPieceType() == 6 ||
-                order.getManufacturing_order().getClientOrder().getPieceType() == 8) {
-            pieceType_to_order = 1;
-        } else {
-            pieceType_to_order = 2;
-        }
-        //Teoricamente deve de haver um vetor para colocar as encomendas a serem feitas no dia certo,
-        // pois correm o risco de chegarem mais cedo
-
-        //Place Order
-        if (!order.getManufacturing_order().addNewRawMaterialOrder(
-                new rawMaterialOrder(
-                        qty_to_order,
-                        order.getManufacturing_order().getClientOrder().getQty(),
-                        deadline - choosenSupplier.getDeliveryTime(),
-                        choosenSupplier,
-                        pieceType_to_order
-
-                )))
-            System.out.println("Error creating new RawMaterial Order on class:ERP method:makeRawMaterialOrder");
-
-        //order.displayRawMaterialOrders();
-
-        return choosenSupplier.getDeliveryTime();
     }
 
-
-    public void send2MESinteralOrders(shareResources erp2MES) {
-
+    public void send2MESinteralOrders() {
 
         String recvString = new String();
         String prodString = new String();
         String shipString = new String();
 
-        for (receiveOrder curr : getReceiveOrder()) {
-            if (curr.getStartDate() <= (int) (getTime() / exe.oneDay) + exe.internalOrders_target) {
-                recvString = recvString.concat(Integer.toString(curr.getOrderID()));
-                recvString = recvString.concat("@");
-                recvString = recvString.concat(Integer.toString(curr.getStartDate()));
-                recvString = recvString.concat("/");
+
+        for (rawMaterialOrder curr : getRawMaterialOrders()) {
+            if (curr.getArrivalTime() == countdays) {
+            recvString = recvString.concat(Integer.toString(curr.getID()));
+            recvString = recvString.concat("@");
+            recvString = recvString.concat(Integer.toString(curr.getPieceType()));
+            recvString = recvString.concat("@");
+            recvString = recvString.concat(Integer.toString(curr.getArrivalTime()));
+            recvString = recvString.concat("@");
+            recvString = recvString.concat(Integer.toString(curr.getQty()));
+            recvString = recvString.concat("/");
+
             }
         }
-        recvString = recvString.concat("-");
+        recvString = recvString.concat("_");
 
-        for (productionOrder curr : getProductionOrder()) {
-            if (curr.getStartDate() <= (int) (getTime() / exe.oneDay) + exe.internalOrders_target) {
-                prodString = prodString.concat(Integer.toString(curr.getOrderID()));
+        for (productionOrder curr : getProductionOrders()) {
+            if (curr.getStartProdutionDate() == countdays + internalOrders_target) {
+            prodString = prodString.concat(Integer.toString(curr.getManufacturingID()));
+            prodString = prodString.concat("@");
+            prodString = prodString.concat(Integer.toString(curr.getFinalType()));
+            prodString = prodString.concat("@");
+            prodString = prodString.concat(Integer.toString(curr.getStartProdutionDate()));
+            prodString = prodString.concat("@");
+            prodString = prodString.concat(Integer.toString(curr.getQty()));
+            prodString = prodString.concat("@");
+            // Campo extra para dizer quantas ordens desse tipo tem o vetor
+            prodString = prodString.concat(Integer.toString(curr.getRawMaterialOrderID_qtyRawMaterials().size()));
+            for (rawMaterialOrderID_QtyRawMaterial curr2 : curr.getRawMaterialOrderID_qtyRawMaterials()) {
                 prodString = prodString.concat("@");
-                prodString = prodString.concat(Integer.toString(curr.getStartDate()));
-                prodString = prodString.concat("/");
+                prodString = prodString.concat(Integer.toString(curr2.getRawMaterialOrderID()));
+                prodString = prodString.concat("@");
+                prodString = prodString.concat(Integer.toString(curr2.getQtyRawMaterial()));
+            }
+            prodString = prodString.concat("/");
             }
         }
-        prodString = prodString.concat("-");
+        prodString = prodString.concat("_");
 
-        for (shippingOrder curr : getShippingOrder()) {
-            if (curr.getStartDate() <= (int) (getTime() / exe.oneDay) + exe.internalOrders_target) {
-                shipString = shipString.concat(Integer.toString(curr.getOrderID()));
-                shipString = shipString.concat("@");
-                shipString = shipString.concat(Integer.toString(curr.getStartDate()));
-                shipString = shipString.concat("/");
+        for (shippingOrder curr : getShippingOrders()) {
+             if (curr.getStartShippingDate() == countdays) {
+            shipString = shipString.concat(Integer.toString(curr.getManufacturingID()));
+            shipString = shipString.concat("@");
+            shipString = shipString.concat(Integer.toString(curr.getStartShippingDate()));
+            shipString = shipString.concat("@");
+            shipString = shipString.concat(Integer.toString(curr.getQty()));
+            shipString = shipString.concat("/");
             }
         }
-        shipString = shipString.concat("-");
+        shipString = shipString.concat("_");
         String returnStr = new String();
 
         returnStr = returnStr.concat(recvString);
         returnStr = returnStr.concat(prodString);
         returnStr = returnStr.concat(shipString);
 
-        //System.out.println(returnStr);
-        erp2MES.printInERP2MESbuffer(returnStr);
+        getShareResources().printInERP2MESbuffer(returnStr);
+//        System.out.println(returnStr);
 
         return;
 
@@ -395,22 +441,20 @@ public class ERP {
 
     public void displayRawMaterialArriving() {
 
-        getErp_viewer().showRawMaterialArriving(getManufacturingOrders(), getTime());
+        getErp_viewer().showRawMaterialArriving(getRawMaterialOrders(), countdays);
 
 
     }
 
     public void displayInternalOrder() {
-        if (dayBefore != countdays && countdays != 0) {
-            getErp_viewer().showInternalOrders(getReceiveOrder(), getProductionOrder(), getShippingOrder());
-            dayBefore = countdays;
 
-        }
+        getErp_viewer().showInternalOrders(getRawMaterialOrders(), getProductionOrders(), getShippingOrders());
+
     }
 
     public void displayRawMaterialOrdered() {
 
-        getErp_viewer().showRawMaterialsOrdered(allMaterialsOrdered());
+        //getErp_viewer().showRawMaterialsOrdered(allMaterialsOrdered());
 
 
     }

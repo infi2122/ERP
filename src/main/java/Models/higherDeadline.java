@@ -10,10 +10,10 @@ import java.util.*;
 public class higherDeadline extends orderCriterium {
 
     private class exe {
+
         public static final int oneDay = 60;
-        public static final int LINEAR_t = 5;
-        public static final int ROTATE_t = 7;
-        public static final int MAQUINAR_t = 10;
+        public static final int LINEAR_t = 2;
+        public static final int ROTATE_t = 2*LINEAR_t;
         public static final int in_out_WH_t = 2;
 
 
@@ -21,8 +21,9 @@ public class higherDeadline extends orderCriterium {
         public static final int productionTOshipping_delay = 0;
         /**
          * unload capacity per day of Section A
+         * VERIFICADO !!
          */
-        public static final int unload_capacity = 5;
+        public static final int unload_capacity = 9;
 
         public static final int production_capacity = 10;
         /**
