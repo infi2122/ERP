@@ -59,6 +59,7 @@ public class App {
                 erp.send2MESinteralOrders();
                 erp.displayInternalOrder();
                 erp.displayRawMaterialArriving();
+                erp.displayRawMaterialOrdered();
             }
         }
 

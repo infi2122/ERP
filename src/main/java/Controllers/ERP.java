@@ -126,6 +126,7 @@ public class ERP {
                 setCurrentTime((time - startTime) / 1000);
                 if ((int) getTime() / oneDay > countdays) {
                     countdays = (int) getTime() / oneDay;
+                    getErp_viewer().cleanScreen();
                     System.out.println("Current Day: " + countdays);
                 }
             }
@@ -252,7 +253,6 @@ public class ERP {
                 }
             }
 
-
             // Se sobrar algo da filtragem, então vou atribuir rawMaterialOrders existentes
             // a esta nova manufacturingID, portanto vou adicionar essas atribuiçoes num vetor
             // de retorno para o production order
@@ -285,7 +285,8 @@ public class ERP {
 
             // Para isso tenho de escolher o supplier
             ArrayList<supplier> suppliers = new suppliersList().availableSuppliers();
-            supplier choosenSupplier = new supplier();
+            // O default é o que entrega no menor tempo possível, portanto é o C
+            supplier choosenSupplier = suppliers.get(2);
 
             for (supplier curr : suppliers) {
                 if (curr.getDeliveryTime() + (int) (getTime() / 60) < deadline) {
@@ -294,8 +295,8 @@ public class ERP {
                 }
             }
             // Se o deadline for menor que o tempo que demora, entao escolho o supplier que entrega mais rapido --> SupplierC
-            if (choosenSupplier == null)
-                choosenSupplier = suppliers.get(2);
+//            if (choosenSupplier == null)
+//                choosenSupplier = suppliers.get(2);
 
             int qtyToOrder = necessaryQty;
             if (choosenSupplier.getMinQty() > qtyToOrder) {
@@ -369,50 +370,53 @@ public class ERP {
 
         for (rawMaterialOrder curr : getRawMaterialOrders()) {
             if (curr.getArrivalTime() == countdays) {
-            recvString = recvString.concat(Integer.toString(curr.getID()));
-            recvString = recvString.concat("@");
-            recvString = recvString.concat(Integer.toString(curr.getPieceType()));
-            recvString = recvString.concat("@");
-            recvString = recvString.concat(Integer.toString(curr.getArrivalTime()));
-            recvString = recvString.concat("@");
-            recvString = recvString.concat(Integer.toString(curr.getQty()));
-            recvString = recvString.concat("/");
+                recvString = recvString.concat(Integer.toString(curr.getID()));
+                recvString = recvString.concat("@");
+                recvString = recvString.concat(Integer.toString(curr.getPieceType()));
+                recvString = recvString.concat("@");
+                recvString = recvString.concat(Integer.toString(curr.getArrivalTime()));
+                recvString = recvString.concat("@");
+                recvString = recvString.concat(Integer.toString(curr.getQty()));
+                recvString = recvString.concat("/");
 
             }
         }
         recvString = recvString.concat("_");
 
         for (productionOrder curr : getProductionOrders()) {
-            if (curr.getStartProdutionDate() == countdays + internalOrders_target) {
-            prodString = prodString.concat(Integer.toString(curr.getManufacturingID()));
-            prodString = prodString.concat("@");
-            prodString = prodString.concat(Integer.toString(curr.getFinalType()));
-            prodString = prodString.concat("@");
-            prodString = prodString.concat(Integer.toString(curr.getStartProdutionDate()));
-            prodString = prodString.concat("@");
-            prodString = prodString.concat(Integer.toString(curr.getQty()));
-            prodString = prodString.concat("@");
-            // Campo extra para dizer quantas ordens desse tipo tem o vetor
-            prodString = prodString.concat(Integer.toString(curr.getRawMaterialOrderID_qtyRawMaterials().size()));
-            for (rawMaterialOrderID_QtyRawMaterial curr2 : curr.getRawMaterialOrderID_qtyRawMaterials()) {
-                prodString = prodString.concat("@");
-                prodString = prodString.concat(Integer.toString(curr2.getRawMaterialOrderID()));
-                prodString = prodString.concat("@");
-                prodString = prodString.concat(Integer.toString(curr2.getQtyRawMaterial()));
-            }
-            prodString = prodString.concat("/");
+            if (countdays % 2 == 1) {
+                if (curr.getStartProdutionDate() == countdays + internalOrders_target
+                        || curr.getStartProdutionDate() == countdays + internalOrders_target + 1) {
+                    prodString = prodString.concat(Integer.toString(curr.getManufacturingID()));
+                    prodString = prodString.concat("@");
+                    prodString = prodString.concat(Integer.toString(curr.getFinalType()));
+                    prodString = prodString.concat("@");
+                    prodString = prodString.concat(Integer.toString(curr.getStartProdutionDate()));
+                    prodString = prodString.concat("@");
+                    prodString = prodString.concat(Integer.toString(curr.getQty()));
+                    prodString = prodString.concat("@");
+                    // Campo extra para dizer quantas ordens desse tipo tem o vetor
+                    prodString = prodString.concat(Integer.toString(curr.getRawMaterialOrderID_qtyRawMaterials().size()));
+                    for (rawMaterialOrderID_QtyRawMaterial curr2 : curr.getRawMaterialOrderID_qtyRawMaterials()) {
+                        prodString = prodString.concat("@");
+                        prodString = prodString.concat(Integer.toString(curr2.getRawMaterialOrderID()));
+                        prodString = prodString.concat("@");
+                        prodString = prodString.concat(Integer.toString(curr2.getQtyRawMaterial()));
+                    }
+                    prodString = prodString.concat("/");
+                }
             }
         }
         prodString = prodString.concat("_");
 
         for (shippingOrder curr : getShippingOrders()) {
-             if (curr.getStartShippingDate() == countdays) {
-            shipString = shipString.concat(Integer.toString(curr.getManufacturingID()));
-            shipString = shipString.concat("@");
-            shipString = shipString.concat(Integer.toString(curr.getStartShippingDate()));
-            shipString = shipString.concat("@");
-            shipString = shipString.concat(Integer.toString(curr.getQty()));
-            shipString = shipString.concat("/");
+            if (curr.getStartShippingDate() == countdays) {
+                shipString = shipString.concat(Integer.toString(curr.getManufacturingID()));
+                shipString = shipString.concat("@");
+                shipString = shipString.concat(Integer.toString(curr.getStartShippingDate()));
+                shipString = shipString.concat("@");
+                shipString = shipString.concat(Integer.toString(curr.getQty()));
+                shipString = shipString.concat("/");
             }
         }
         shipString = shipString.concat("_");
@@ -448,13 +452,13 @@ public class ERP {
 
     public void displayInternalOrder() {
 
-        getErp_viewer().showInternalOrders(getRawMaterialOrders(), getProductionOrders(), getShippingOrders());
+        getErp_viewer().showInternalOrders(getRawMaterialOrders(), getProductionOrders(), getShippingOrders(), countdays);
 
     }
 
     public void displayRawMaterialOrdered() {
 
-        //getErp_viewer().showRawMaterialsOrdered(allMaterialsOrdered());
+        getErp_viewer().showRawMaterialsOrdered(getRawMaterialOrders());
 
 
     }

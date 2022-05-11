@@ -17,8 +17,9 @@ public class higherDeadline extends orderCriterium {
         public static final int in_out_WH_t = 2;
 
 
+
         public static final int unloadTOproduction_delay = oneDay / oneDay;
-        public static final int productionTOshipping_delay = 0;
+        public static final int productionFactor = 2;
         /**
          * unload capacity per day of Section A
          * VERIFICADO !!
@@ -152,15 +153,8 @@ public class higherDeadline extends orderCriterium {
             i++;
 
         }
-        //System.out.println("#Transformations: " + nTransformations + " totalDuration: " + totalDuration);
-           /*
-        if (order.getPieceType() == 3) {
-            // Maquina 2 - 0 4 é o nº de tapetes até chegar à ultima máquina 2 pior caso
-            //             0 2 é pq o percurso de meter e tirar das maquinas é igual no pior caso
-            return (order.getQty() * exe.in_out_WH_t) + 2 * (exe.LINEAR_t + (4 * exe.ROTATE_t)) + exe.MAQUINAR_t + exe.in_out_WH_t;
-        }*/
-        return (order.getQty() * exe.in_out_WH_t) + (nTransformations * 2 * (exe.LINEAR_t + (4 * exe.ROTATE_t))) + totalDuration + exe.in_out_WH_t;
 
+        return (order.getQty() * exe.in_out_WH_t) + exe.productionFactor * (nTransformations * 2 * (exe.LINEAR_t + (4 * exe.ROTATE_t))) + totalDuration + exe.in_out_WH_t;
 
     }
 
@@ -192,7 +186,7 @@ public class higherDeadline extends orderCriterium {
             // *** SHIPPING
             // folga de 10 s no shipping, portanto tentar ocupar no maximo os primeiros 20s do dia de enviar
 
-            float deadline = current_t + deliveryDate *  exe.oneDay + (exe.oneDay / 2) - 10;
+            float deadline = /*current_t + */ deliveryDate *  exe.oneDay + (exe.oneDay / 2) - 10;
             shipping_end = (int) deadline / exe.oneDay;
             if ((deadline / exe.oneDay) - (int) (deadline / exe.oneDay) >= 0.5) {
                 shipping_begin = shipping_end - (shipping_t / exe.oneDay) - 2;

@@ -41,7 +41,7 @@ public class shareResources {
     public void printInERP2MESbuffer(String str) {
 
         setInternalOrdersConcat(str);
-        System.out.println(getInternalOrdersConcat());
+        //System.out.println(getInternalOrdersConcat());
     }
 
     public String readInERP2MESbuffer() {
