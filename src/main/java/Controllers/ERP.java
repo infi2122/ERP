@@ -1,10 +1,12 @@
 package Controllers;
 
+import comsProtocols.ERP_to_MES;
 import comsProtocols.shareResources;
 import Models.*;
 import Readers.suppliersList;
 import Readers.xmlReader;
 import Viewers.*;
+import comsProtocols.tcpClient;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,6 +18,7 @@ public class ERP {
     private long startTime = 0;
     private int countdays = 0;
     private int dayBefore = -1;
+    private ERP_to_MES erp2mes;
 
     public final int oneDay = 60;
     public final int internalOrders_target = 1; // #days to send orders for MES
@@ -29,6 +32,7 @@ public class ERP {
     private ArrayList<productionOrder> productionOrders;
     private ArrayList<shippingOrder> shippingOrders;
 
+    private Comparators arraysOrdering = new Comparators();
     private ERP_Viewer erp_viewer;
 
     // ******* CONSTRUCTOR ********
@@ -56,6 +60,14 @@ public class ERP {
 
     public comsProtocols.shareResources getShareResources() {
         return shareResources;
+    }
+
+    public ERP_to_MES getErp2mes() {
+        return erp2mes;
+    }
+
+    public void setErp2mes(ERP_to_MES erp2mes) {
+        this.erp2mes = erp2mes;
     }
 
     public orderCriterium getOrderCriterium() {
@@ -89,6 +101,7 @@ public class ERP {
 
     public void addNewRawMaterialOrder(rawMaterialOrder newRawMaterialOrder) {
         getRawMaterialOrders().add(newRawMaterialOrder);
+        arraysOrdering.rawOrdering(getRawMaterialOrders());
     }
 
     public ArrayList<productionOrder> getProductionOrders() {
@@ -97,6 +110,7 @@ public class ERP {
 
     public void addNewProductionOrder(productionOrder newProductionOrder) {
         getProductionOrders().add(newProductionOrder);
+        arraysOrdering.prodOrdering(getProductionOrders());
     }
 
     public ArrayList<shippingOrder> getShippingOrders() {
@@ -105,6 +119,7 @@ public class ERP {
 
     public void addNewShippingOrders(shippingOrder newShippingOrder) {
         getShippingOrders().add(newShippingOrder);
+        arraysOrdering.shipOrdering(getShippingOrders());
     }
 
     // Inner Classes
@@ -434,14 +449,11 @@ public class ERP {
 
     }
 
-    // ******** VIEW METHODS *********
-
-    public void displayManufacturingOrders() {
-
-        getErp_viewer().showManufacturingOrders(getManufacturingOrders());
-
+    public void receiveFinishedOrdersStats(){
 
     }
+
+    // ******** VIEW METHODS *********
 
     public void displayRawMaterialArriving() {
 

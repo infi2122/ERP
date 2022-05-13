@@ -47,7 +47,6 @@ public class tcpServer {
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
 
-
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
 

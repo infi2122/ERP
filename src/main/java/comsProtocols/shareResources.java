@@ -5,6 +5,7 @@ public class shareResources {
     private long startTime;
     private String internalOrdersConcat;
     private String clientOrders;
+    private String finishedOrdersInfo;
 
     public long getStartTime() {
         return startTime;
@@ -30,14 +31,6 @@ public class shareResources {
         this.clientOrders = clientOrders;
     }
 
-    public void receiveNewOrder_udp(String str) {
-        setClientOrders(str);
-    }
-
-    public String readNewOrder_udp() {
-        return getClientOrders();
-    }
-
     public void printInERP2MESbuffer(String str) {
 
         setInternalOrdersConcat(str);
@@ -49,4 +42,11 @@ public class shareResources {
         return getInternalOrdersConcat();
     }
 
+    public String getFinishedOrdersInfo() {
+        return finishedOrdersInfo;
+    }
+
+    public void setFinishedOrdersInfo(String finishedOrdersInfo) {
+        this.finishedOrdersInfo = finishedOrdersInfo;
+    }
 }
