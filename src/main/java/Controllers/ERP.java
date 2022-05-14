@@ -1,12 +1,10 @@
 package Controllers;
 
-import comsProtocols.ERP_to_MES;
-import comsProtocols.shareResources;
+import comsProtocols.sharedResources;
 import Models.*;
 import Readers.suppliersList;
 import Readers.xmlReader;
 import Viewers.*;
-import comsProtocols.tcpClient;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,14 +16,13 @@ public class ERP {
     private long startTime = 0;
     private int countdays = 0;
     private int dayBefore = -1;
-    private ERP_to_MES erp2mes;
 
     public final int oneDay = 60;
     public final int internalOrders_target = 1; // #days to send orders for MES
 
     // ******* ATTRIBUTES ********
     private long currentTime;
-    private shareResources shareResources;
+    private sharedResources shareResources;
     private orderCriterium orderCriterium;
     private ArrayList<manufacturingOrderController> manufacturingOrders;
     private ArrayList<rawMaterialOrder> rawMaterialOrders;
@@ -37,7 +34,7 @@ public class ERP {
 
     // ******* CONSTRUCTOR ********
     public ERP(orderCriterium orderCriterium, ArrayList<manufacturingOrderController> manufacturingOrderControllers,
-               ERP_Viewer erp_viewer, shareResources sharedResources) {
+               ERP_Viewer erp_viewer, sharedResources sharedResources) {
         this.orderCriterium = orderCriterium;
         this.manufacturingOrders = manufacturingOrderControllers;
         this.erp_viewer = erp_viewer;
@@ -58,16 +55,8 @@ public class ERP {
         this.currentTime = currentTime;
     }
 
-    public comsProtocols.shareResources getShareResources() {
+    public sharedResources getShareResources() {
         return shareResources;
-    }
-
-    public ERP_to_MES getErp2mes() {
-        return erp2mes;
-    }
-
-    public void setErp2mes(ERP_to_MES erp2mes) {
-        this.erp2mes = erp2mes;
     }
 
     public orderCriterium getOrderCriterium() {
@@ -441,7 +430,7 @@ public class ERP {
         returnStr = returnStr.concat(prodString);
         returnStr = returnStr.concat(shipString);
 
-        getShareResources().printInERP2MESbuffer(returnStr);
+        getShareResources().setInternalOrdersConcat(returnStr);
 //        System.out.println(returnStr);
 
         return;

@@ -1,6 +1,6 @@
 package comsProtocols;
 
-public class shareResources {
+public class sharedResources {
 
     private long startTime;
     private String internalOrdersConcat;
@@ -29,17 +29,6 @@ public class shareResources {
 
     public void setClientOrders(String clientOrders) {
         this.clientOrders = clientOrders;
-    }
-
-    public void printInERP2MESbuffer(String str) {
-
-        setInternalOrdersConcat(str);
-        //System.out.println(getInternalOrdersConcat());
-    }
-
-    public String readInERP2MESbuffer() {
-
-        return getInternalOrdersConcat();
     }
 
     public String getFinishedOrdersInfo() {

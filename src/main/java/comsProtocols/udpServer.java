@@ -17,7 +17,7 @@ public class udpServer {
 
     private DatagramSocket socket;
 
-    public void start(int port, shareResources sharedBuffer) {
+    public void start(int port, sharedResources sharedBuffer) {
 
         try {
             socket = new DatagramSocket(port);
@@ -39,9 +39,9 @@ public class udpServer {
     private static class Handler extends Thread {
 
         DatagramSocket socket;
-        private shareResources buffer;
+        private sharedResources buffer;
 
-        Handler(DatagramSocket socket, shareResources sharedBuffer) {
+        Handler(DatagramSocket socket, sharedResources sharedBuffer) {
             this.socket = socket;
             this.buffer = sharedBuffer;
         }
@@ -70,9 +70,9 @@ public class udpServer {
         }
     }
 
-    public static void main(String args[]) {
-        udpServer server = new udpServer();
-        server.start(54321, new shareResources());
-    }
+//    public static void main(String args[]) {
+//        udpServer server = new udpServer();
+//        server.start(54321, new shareResources());
+//    }
 
 }

@@ -1,8 +1,7 @@
 import Controllers.ERP;
-import comsProtocols.ERP_to_MES;
-import comsProtocols.shareResources;
+import comsProtocols.sharedResources;
 import Models.higherDeadline;
-import comsProtocols.tcpServer;
+import comsProtocols.ServerTCP;
 import comsProtocols.udpServer;
 import Viewers.ERP_Viewer;
 
@@ -16,13 +15,12 @@ public class App {
 
     private static String ERP_IP = "127.0.0.1";
     private static int ERP_to_MES_port = 20000;
-    private static int MES_to_ERP_port = 20001;
     private static int portClientOrders = 54321;
 
     public static void main(String args[]) {
 
         /* share resource for comunications  */
-        shareResources shareResources = new shareResources();
+        sharedResources shareResources = new sharedResources();
         /* *************************************** */
 
         ERP erp = new ERP(new higherDeadline(), new ArrayList<>(), new ERP_Viewer(),shareResources);
@@ -30,14 +28,9 @@ public class App {
         //sql.createSQLtables();
 
         /* TCP/IP for MES communications */
-        // ERP como cliente -> Para pedir os tempos de produção das encomendas,
-        ERP_to_MES erp2mes = new ERP_to_MES();
-        erp2mes.openConnection(ERP_to_MES_port,ERP_IP);
-        erp.setErp2mes(erp2mes);
 
-        // ERP como servidor -> Para mandar ordens de produção, e sincronização do t=0
-        tcpServer ERPserver = new tcpServer();
-        ERPserver.start(ERP_to_MES_port, shareResources);
+        ServerTCP server = new ServerTCP();
+        server.start(ERP_to_MES_port,shareResources);
         /* *************************************** */
 
         /* UDP Listener for new orders */
