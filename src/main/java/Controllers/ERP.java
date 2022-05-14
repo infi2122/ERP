@@ -16,6 +16,7 @@ public class ERP {
     private long startTime = 0;
     private int countdays = 0;
     private int dayBefore = -1;
+    private static int productionPrice_t = 1;
 
     public final int oneDay = 60;
     public final int internalOrders_target = 1; // #days to send orders for MES
@@ -437,10 +438,81 @@ public class ERP {
 
 
     }
+    public void calculateCosts() {
 
-    public void receiveFinishedOrdersStats(){
+        receiveFinishedOrdersStats();
+        calculateTotalCosts();
 
     }
+
+    private void receiveFinishedOrdersStats() {
+
+        String str = shareResources.getFinishedOrdersInfo();
+
+        String[] allOrders = str.split("/", -1);
+
+        for (String tok : allOrders) {
+
+            String[] fields = tok.split("@", -1);
+            //Irá ter 3 pos, com o ID, Production_t, SFS_t
+            for (manufacturingOrderController curr : getManufacturingOrders()) {
+                // Para a manufacturing order, dá set aos tempos de produção
+                if (curr.getManufacturing_order().getProductionID() == Integer.parseInt(fields[0])) {
+                    curr.getManufacturing_order().setMeanProduction_t(Integer.parseInt(fields[1]));
+                    curr.getManufacturing_order().setMeanSFS_t(Integer.parseInt(fields[2]));
+
+                }
+            }
+
+        }
+
+    }
+
+    private void calculateTotalCosts() {
+
+        // Tenho de percorrer o vetor das manufacturingOrder
+        for (manufacturingOrderController curr : getManufacturingOrders()) {
+            manufacturingOrder manufacturingOrder = curr.getManufacturing_order();
+
+            // Só faz das encomendas que ainda não tem o custo calculado
+            if (manufacturingOrder.getTotalCost() == 0) {
+                double totalCost = 0;
+
+                for (rawMaterialOrder rawOrder : getRawMaterialOrders()) {
+                    for (productionInRawMaterials rawOrderDetails : rawOrder.getProductionInRawMaterials()) {
+
+                        if (rawOrderDetails.getOrderID() == manufacturingOrder.getProductionID()) {
+
+                            // Production Cost: Pc =  1 € * Pt
+
+                            int Pc = manufacturingOrder.getMeanProduction_t() * productionPrice_t;
+
+                            // Depreciation Cost: Dc = Rc * SFS_t * 1% (Rc : raw Material cost)
+
+                            int Rc = 0;
+                            for (rawPiece piece : rawOrder.getSupplier().getRawPieces()) {
+
+                                if (piece.getType() == rawOrder.getPieceType())
+                                    Rc = piece.getUnitCost();
+                                System.out.println("Supplier: " + rawOrder.getSupplier().getName() + " Rc: " + Rc);
+                            }
+
+                            double Dc = Rc * manufacturingOrder.getMeanSFS_t() * 0.01;
+
+                            totalCost += Rc + Pc + Dc;
+
+                        }
+                    }
+                }
+                System.out.println("Avg Cost: " + totalCost / manufacturingOrder.getClientOrder().getQty());
+                manufacturingOrder.setTotalCost((int) totalCost / manufacturingOrder.getClientOrder().getQty());
+            }
+
+        }
+
+    }
+
+
 
     // ******** VIEW METHODS *********
 
