@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 public class App {
 
-    private static String ERP_IP = "127.0.0.1";
     private static int ERP_to_MES_port = 20000;
     private static int portClientOrders = 54321;
 
@@ -23,14 +22,13 @@ public class App {
         sharedResources shareResources = new sharedResources();
         /* *************************************** */
 
-        ERP erp = new ERP(new higherDeadline(), new ArrayList<>(), new ERP_Viewer(),shareResources);
+        ERP erp = new ERP(new higherDeadline(), new ArrayList<>(), new ERP_Viewer(), shareResources);
         //SQL sql = new SQL();
         //sql.createSQLtables();
 
         /* TCP/IP for MES communications */
-
         ServerTCP server = new ServerTCP();
-        server.start(ERP_to_MES_port,shareResources);
+        server.start(ERP_to_MES_port, shareResources);
         /* *************************************** */
 
         /* UDP Listener for new orders */
@@ -40,7 +38,7 @@ public class App {
 
         ScheduledExecutorService schedulerERP = Executors.newScheduledThreadPool(2);
         schedulerERP.scheduleAtFixedRate(new myTimer(erp), 0, 1, TimeUnit.SECONDS);
-        schedulerERP.scheduleAtFixedRate(new myERP(erp), 0, 60, TimeUnit.SECONDS);
+        schedulerERP.scheduleAtFixedRate(new myERP(erp),0 , 60, TimeUnit.SECONDS);
 
     }
 
@@ -50,7 +48,6 @@ public class App {
 
         public myERP(ERP erp1) {
             this.erp = erp1;
-
         }
 
         @Override
@@ -62,7 +59,7 @@ public class App {
                 erp.displayInternalOrder();
                 erp.displayRawMaterialArriving();
                 erp.displayRawMaterialOrdered();
-                erp.calculateCosts();
+                //erp.calculateCosts();
             }
         }
 

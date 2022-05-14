@@ -10,7 +10,7 @@ public class ServerTCP {
 
     /* Thread timing */
     private int initialDelay = 0;
-    private int periodicDelay = 30;
+    private int periodicDelay = 20;
 
     private ServerSocket serverSocket;
 
@@ -40,6 +40,7 @@ public class ServerTCP {
         private BufferedWriter bw;
 
         private sharedResources sharedBuffer;
+        private boolean odd = true;
 
         public clientHandler(ServerSocket serverSocket, sharedResources erp2MES) {
             this.serverSocket = serverSocket;
@@ -53,9 +54,14 @@ public class ServerTCP {
                     socket = serverSocket.accept();
                     System.out.println("Sucessfully Connected to MES");
                 }
-                acceptRequest("startTime");
-                acceptRequest("internalOrders");
-                createRequest("finishedOrdersTimes");
+                if (odd) {
+                    acceptRequest("startTime");
+                    acceptRequest("internalOrders");
+                    //odd = false;
+                } else {
+                    createRequest("finishedOrdersTimes");
+                    odd = true;
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();

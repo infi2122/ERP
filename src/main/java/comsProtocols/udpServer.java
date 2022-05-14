@@ -65,7 +65,6 @@ public class udpServer {
             String received
                     = new String(rpkt.getData(), rpkt.getOffset(), rpkt.getLength()).trim();
             buffer.setClientOrders(received);
-            return;
 
         }
     }

@@ -368,9 +368,9 @@ public class ERP {
 
     public void send2MESinteralOrders() {
 
-        String recvString = new String();
-        String prodString = new String();
-        String shipString = new String();
+        String recvString = "";
+        String prodString = "";
+        String shipString = "";
 
 
         for (rawMaterialOrder curr : getRawMaterialOrders()) {
