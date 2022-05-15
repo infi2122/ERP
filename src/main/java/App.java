@@ -13,32 +13,37 @@ import java.util.concurrent.TimeUnit;
 
 public class App {
 
-    private static int ERP_to_MES_port = 20000;
-    private static int portClientOrders = 54321;
+    private static final int ERP_to_MES_port = 20000;
+    private static final int portClientOrders = 54321;
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
 
         /* share resource for comunications  */
         sharedResources shareResources = new sharedResources();
+        shareResources.setInternalOrdersConcat("empty");
+        shareResources.setFinishedOrdersInfo("empty");
         /* *************************************** */
 
         ERP erp = new ERP(new higherDeadline(), new ArrayList<>(), new ERP_Viewer(), shareResources);
         //SQL sql = new SQL();
         //sql.createSQLtables();
 
-        /* TCP/IP for MES communications */
-        ServerTCP server = new ServerTCP();
-        server.start(ERP_to_MES_port, shareResources);
-        /* *************************************** */
-
         /* UDP Listener for new orders */
         udpServer udpThread = new udpServer();
-        udpThread.start(portClientOrders, shareResources);
+        udpThread.start(portClientOrders, shareResources,0,5);
         /* *************************************** */
 
-        ScheduledExecutorService schedulerERP = Executors.newScheduledThreadPool(2);
+        /* TCP/IP for MES communications */
+        ServerTCP server = new ServerTCP();
+        server.start(ERP_to_MES_port, shareResources,0,59);
+        /* *************************************** */
+
+        ScheduledExecutorService schedulerERP = Executors.newScheduledThreadPool(3);
         schedulerERP.scheduleAtFixedRate(new myTimer(erp), 0, 1, TimeUnit.SECONDS);
-        schedulerERP.scheduleAtFixedRate(new myERP(erp),0 , 60, TimeUnit.SECONDS);
+        schedulerERP.scheduleAtFixedRate(new myERP(erp), 0, 60, TimeUnit.SECONDS);
+        schedulerERP.scheduleAtFixedRate(new myERPClientOrders(erp), 5, 20, TimeUnit.SECONDS);
+
+        //ATENÇAO AOS PERIODOS DAS THREADS, alguma alteração pode levar a coisas estranhas!!!
 
     }
 
@@ -54,15 +59,30 @@ public class App {
         public void run() {
 
             synchronized (erp) {
-                erp.checkNewOrders();
-                erp.send2MESinteralOrders();
                 erp.displayInternalOrder();
                 erp.displayRawMaterialArriving();
                 erp.displayRawMaterialOrdered();
-                //erp.calculateCosts();
+                erp.calculateCosts();
+                erp.displayManufacturingOrdersCosts();
             }
         }
 
+    }
+
+    private static class myERPClientOrders extends Thread {
+        private final ERP erp;
+
+        public myERPClientOrders(ERP erp2) {
+            this.erp = erp2;
+        }
+
+        @Override
+        public void run() {
+            synchronized (erp) {
+                erp.checkNewOrders();
+                erp.send2MESinteralOrders();
+            }
+        }
     }
 
     private static class myTimer extends Thread {

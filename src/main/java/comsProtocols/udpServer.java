@@ -11,13 +11,9 @@ import java.util.concurrent.TimeUnit;
 
 public class udpServer {
 
-    /* Thread timing */
-    private int initialDelay = 0;
-    private int periodicDelay = 1;
-
     private DatagramSocket socket;
 
-    public void start(int port, sharedResources sharedBuffer) {
+    public void start(int port, sharedResources sharedBuffer, int initialDelay, int period) {
 
         try {
             socket = new DatagramSocket(port);
@@ -27,7 +23,7 @@ public class udpServer {
 
             Runnable task =  new Handler(socket,sharedBuffer);
 
-            scheduler.scheduleAtFixedRate(task,initialDelay,periodicDelay, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(task,initialDelay,period, TimeUnit.SECONDS);
 
         } catch (SocketException e) {
             e.printStackTrace();
@@ -65,7 +61,6 @@ public class udpServer {
             String received
                     = new String(rpkt.getData(), rpkt.getOffset(), rpkt.getLength()).trim();
             buffer.setClientOrders(received);
-
         }
     }
 

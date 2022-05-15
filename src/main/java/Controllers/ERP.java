@@ -148,7 +148,6 @@ public class ERP {
 
         xmlReader reader = new xmlReader();
         ArrayList<clientOrder> ordersVec = reader.readOrder(getShareResources().getClientOrders());
-
         if (ordersVec == null)
             return;
 
@@ -190,7 +189,7 @@ public class ERP {
         }
 
         getOrderCriterium().ordering(getManufacturingOrders());
-        return;
+
     }
 
     private boolean check_if_clientOrder_have_manufacturingOrder
@@ -374,7 +373,7 @@ public class ERP {
 
 
         for (rawMaterialOrder curr : getRawMaterialOrders()) {
-            if (curr.getArrivalTime() == countdays) {
+            if (curr.getArrivalTime() == countdays + 1) {
                 recvString = recvString.concat(Integer.toString(curr.getID()));
                 recvString = recvString.concat("@");
                 recvString = recvString.concat(Integer.toString(curr.getPieceType()));
@@ -389,9 +388,9 @@ public class ERP {
         recvString = recvString.concat("_");
 
         for (productionOrder curr : getProductionOrders()) {
-            if (countdays % 2 == 1) {
-                if (curr.getStartProdutionDate() == countdays + internalOrders_target
-                        || curr.getStartProdutionDate() == countdays + internalOrders_target + 1) {
+            if (countdays % 2 == 0) {
+                if (curr.getStartProdutionDate() == countdays + internalOrders_target + 1
+                        || curr.getStartProdutionDate() == countdays + internalOrders_target + 2) {
                     prodString = prodString.concat(Integer.toString(curr.getManufacturingID()));
                     prodString = prodString.concat("@");
                     prodString = prodString.concat(Integer.toString(curr.getFinalType()));
@@ -415,7 +414,7 @@ public class ERP {
         prodString = prodString.concat("_");
 
         for (shippingOrder curr : getShippingOrders()) {
-            if (curr.getStartShippingDate() == countdays) {
+            if (curr.getStartShippingDate() == countdays + 1) {
                 shipString = shipString.concat(Integer.toString(curr.getManufacturingID()));
                 shipString = shipString.concat("@");
                 shipString = shipString.concat(Integer.toString(curr.getStartShippingDate()));
@@ -432,39 +431,43 @@ public class ERP {
         returnStr = returnStr.concat(shipString);
 
         getShareResources().setInternalOrdersConcat(returnStr);
-//        System.out.println(returnStr);
-
-        return;
-
 
     }
+
     public void calculateCosts() {
 
-        receiveFinishedOrdersStats();
-        calculateTotalCosts();
+        if (receiveFinishedOrdersStats()) {
+            calculateTotalCosts();
+        }
 
     }
 
-    private void receiveFinishedOrdersStats() {
+    private boolean receiveFinishedOrdersStats() {
 
         String str = shareResources.getFinishedOrdersInfo();
+        if (str.contains("empty"))
+            return false;
 
         String[] allOrders = str.split("/", -1);
-
-        for (String tok : allOrders) {
+        int i = 0;
+        while (i < allOrders.length - 1) {
+            String tok = allOrders[i];
 
             String[] fields = tok.split("@", -1);
             //Irá ter 3 pos, com o ID, Production_t, SFS_t
             for (manufacturingOrderController curr : getManufacturingOrders()) {
                 // Para a manufacturing order, dá set aos tempos de produção
                 if (curr.getManufacturing_order().getProductionID() == Integer.parseInt(fields[0])) {
+
                     curr.getManufacturing_order().setMeanProduction_t(Integer.parseInt(fields[1]));
                     curr.getManufacturing_order().setMeanSFS_t(Integer.parseInt(fields[2]));
 
                 }
             }
+            i++;
 
         }
+        return true;
 
     }
 
@@ -475,7 +478,7 @@ public class ERP {
             manufacturingOrder manufacturingOrder = curr.getManufacturing_order();
 
             // Só faz das encomendas que ainda não tem o custo calculado
-            if (manufacturingOrder.getTotalCost() == 0) {
+            if (manufacturingOrder.getTotalCost() == 0 && manufacturingOrder.getMeanSFS_t() != 0 && manufacturingOrder.getMeanProduction_t() != 0) {
                 double totalCost = 0;
 
                 for (rawMaterialOrder rawOrder : getRawMaterialOrders()) {
@@ -497,14 +500,14 @@ public class ERP {
                                 System.out.println("Supplier: " + rawOrder.getSupplier().getName() + " Rc: " + Rc);
                             }
 
-                            double Dc = Rc * manufacturingOrder.getMeanSFS_t() * 0.01;
+                            double Dc = Rc * ((double) manufacturingOrder.getMeanSFS_t() / oneDay) * 0.01;
 
-                            totalCost += Rc + Pc + Dc;
+                            totalCost += rawOrderDetails.getReservedQty() * (Rc + Pc + Dc);
 
                         }
                     }
                 }
-                System.out.println("Avg Cost: " + totalCost / manufacturingOrder.getClientOrder().getQty());
+//                System.out.println("Avg Cost: " + totalCost / manufacturingOrder.getClientOrder().getQty());
                 manufacturingOrder.setTotalCost((int) totalCost / manufacturingOrder.getClientOrder().getQty());
             }
 
@@ -512,28 +515,21 @@ public class ERP {
 
     }
 
-
-
     // ******** VIEW METHODS *********
 
     public void displayRawMaterialArriving() {
-
         getErp_viewer().showRawMaterialArriving(getRawMaterialOrders(), countdays);
-
-
     }
 
     public void displayInternalOrder() {
-
         getErp_viewer().showInternalOrders(getRawMaterialOrders(), getProductionOrders(), getShippingOrders(), countdays);
-
     }
 
     public void displayRawMaterialOrdered() {
-
         getErp_viewer().showRawMaterialsOrdered(getRawMaterialOrders());
-
-
     }
 
+    public void displayManufacturingOrdersCosts() {
+        getErp_viewer().showManufacturingOrdersCosts(getManufacturingOrders(), getRawMaterialOrders());
+    }
 }

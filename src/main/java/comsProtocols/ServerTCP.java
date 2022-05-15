@@ -8,13 +8,9 @@ import java.util.concurrent.TimeUnit;
 
 public class ServerTCP {
 
-    /* Thread timing */
-    private int initialDelay = 0;
-    private int periodicDelay = 20;
-
     private ServerSocket serverSocket;
 
-    public void start(int port, sharedResources sharedBuffer) {
+    public void start(int port, sharedResources sharedBuffer, int initialDelay, int period) {
         try {
 
             serverSocket = new ServerSocket(port);
@@ -22,7 +18,7 @@ public class ServerTCP {
             ScheduledExecutorService scheduler
                     = Executors.newSingleThreadScheduledExecutor();
 
-            scheduler.scheduleAtFixedRate(new clientHandler(serverSocket, sharedBuffer), initialDelay, periodicDelay, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(new clientHandler(serverSocket, sharedBuffer), initialDelay, period, TimeUnit.SECONDS);
 
 
         } catch (IOException e) {
@@ -54,14 +50,24 @@ public class ServerTCP {
                     socket = serverSocket.accept();
                     System.out.println("Sucessfully Connected to MES");
                 }
-                if (odd) {
-                    acceptRequest("startTime");
-                    acceptRequest("internalOrders");
-                    //odd = false;
-                } else {
+                acceptRequest("startTime");
+                acceptRequest("internalOrders");
+                try {
+                    Thread.sleep(100);
                     createRequest("finishedOrdersTimes");
-                    odd = true;
+                    System.out.println("finishedOrders from MES:" + sharedBuffer.getFinishedOrdersInfo());
+                }catch (InterruptedException e){
+                    e.printStackTrace();
                 }
+
+//                if (odd) {
+//                    acceptRequest("startTime");
+//                    acceptRequest("internalOrders");
+//                    //odd = false;
+//                } else {
+//                    createRequest("finishedOrdersTimes");
+//                    odd = true;
+//                }
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -84,9 +90,10 @@ public class ServerTCP {
                             break;
                         case "internalOrders":
                             toSend = sharedBuffer.getInternalOrdersConcat();
+                            System.out.println(toSend);
                             break;
                         default:
-                            toSend = " ";
+                            toSend = "empty";
                             break;
                     }
                     osw = new OutputStreamWriter(socket.getOutputStream());

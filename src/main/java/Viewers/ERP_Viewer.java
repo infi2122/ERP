@@ -1,48 +1,11 @@
 package Viewers;
 
 import Controllers.manufacturingOrderController;
-import Models.productionInRawMaterials;
-import Models.productionOrder;
-import Models.rawMaterialOrder;
-import Models.shippingOrder;
+import Models.*;
 
 import java.util.ArrayList;
 
 public class ERP_Viewer {
-
-    private void showInternalOrdersHistory(ArrayList<rawMaterialOrder> recv, ArrayList<productionOrder> prod, ArrayList<shippingOrder> ship, int currDay) {
-        if (recv.size() == 0 && prod.size() == 0 && ship.size() == 0)
-            return;
-        System.out.println("**************** Internal Orders  ****************");
-        System.out.println("************ Internal Orders History  ************");
-        System.out.println("--> Raw Material Orders <--");
-
-        for (rawMaterialOrder curr : recv) {
-            if (curr.getArrivalTime() < currDay)
-                System.out.println("rawMaterial ID: " + curr.getID() + " arrives on day: " + curr.getArrivalTime() +
-                        " Type: " + curr.getPieceType() + " Quantity: " + curr.getQty());
-
-            for (productionInRawMaterials curr2 : curr.getProductionInRawMaterials()) {
-                System.out.println("     manufacuringID: " + curr2.getOrderID() + " quantity: " + curr2.getReservedQty());
-            }
-        }
-
-        System.out.println("\n--> Production Orders <--");
-        for (productionOrder curr : prod) {
-            if (curr.getStartProdutionDate() < currDay)
-                System.out.println("manufacuringID: " + curr.getManufacturingID() + " starts on day: " + curr.getStartProdutionDate()
-                        + " Type: " + curr.getFinalType() + " Qty: " + curr.getQty());
-        }
-
-        System.out.println("\n--> Shipping Orders <--");
-        for (shippingOrder curr : ship) {
-            if (curr.getStartShippingDate() < currDay)
-                System.out.println("manufacuringID: " + curr.getManufacturingID() + " starts on day: " + curr.getStartShippingDate()
-                        + " Qty: " + curr.getQty());
-        }
-        System.out.println(" ");
-
-    }
 
     public void showInternalOrders(ArrayList<rawMaterialOrder> recv, ArrayList<productionOrder> prod, ArrayList<shippingOrder> ship, int currDay) {
         if (recv.size() == 0 && prod.size() == 0 && ship.size() == 0)
@@ -54,11 +17,11 @@ public class ERP_Viewer {
 
         for (rawMaterialOrder curr : recv) {
             //if(curr.getArrivalTime() >= currDay )
-            System.out.println("rawMaterial ID: " + curr.getID() + " arrives on day: " + curr.getArrivalTime() +
+            System.out.println(" rawMaterial ID: " + curr.getID() + " arrives on day: " + curr.getArrivalTime() +
                     " Type: " + curr.getPieceType() + " Quantity: " + curr.getQty());
 
             for (productionInRawMaterials curr2 : curr.getProductionInRawMaterials()) {
-                System.out.println("     manufacuringID: " + curr2.getOrderID() + " quantity: " + curr2.getReservedQty());
+                System.out.println("     manufacturingID: " + curr2.getOrderID() + " quantity: " + curr2.getReservedQty());
             }
 
         }
@@ -66,14 +29,14 @@ public class ERP_Viewer {
         System.out.println("\n----------------------> Production Orders <-----------------------");
         for (productionOrder curr : prod) {
             // if (curr.getStartProdutionDate() >= currDay)
-            System.out.println("manufacuringID: " + curr.getManufacturingID() + " starts on day: " + curr.getStartProdutionDate()
+            System.out.println(" manufacturingID: " + curr.getManufacturingID() + " starts on day: " + curr.getStartProdutionDate()
                     + " Type: " + curr.getFinalType() + " Qty: " + curr.getQty());
         }
 
         System.out.println("\n------------------------> Shipping Orders <-----------------------");
         for (shippingOrder curr : ship) {
             // if (curr.getStartShippingDate() >= currDay)
-            System.out.println("manufacuringID: " + curr.getManufacturingID() + " starts on day: " + curr.getStartShippingDate()
+            System.out.println(" manufacturingID: " + curr.getManufacturingID() + " starts on day: " + curr.getStartShippingDate()
                     + " Qty: " + curr.getQty());
         }
         System.out.println("*******************************************************************");
@@ -120,9 +83,39 @@ public class ERP_Viewer {
         }
     }
 
+    public void showManufacturingOrdersCosts(ArrayList<manufacturingOrderController> arrayList, ArrayList<rawMaterialOrder> rawMaterialOrders) {
+        if (arrayList.size() > 0) {
+            System.out.println("*********************** Manufacturing Costs  **********************");
+
+            for (manufacturingOrderController curr : arrayList) {
+                System.out.println(" manufacturingID: " + curr.getManufacturing_order().getProductionID() +
+                        " total Cost: " + curr.getManufacturing_order().getTotalCost() +"€");
+                System.out.println("     Client: " + curr.getManufacturing_order().getClientOrder().getClientName() +
+                        " Quantity: " + curr.getManufacturing_order().getClientOrder().getQty() +
+                        " of type: P" + curr.getManufacturing_order().getClientOrder().getPieceType() +
+                        " for day: " + curr.getManufacturing_order().getClientOrder().getDeliveryDate());
+                supplier tempSupplier = new supplier();
+//                rawMaterialOrder tempRawMaterial = null;
+                for (rawMaterialOrder curr2 : rawMaterialOrders) {
+                    for (productionInRawMaterials curr3 : curr2.getProductionInRawMaterials()) {
+                        if (curr3.getOrderID() == curr.getManufacturing_order().getProductionID()) {
+                            tempSupplier = curr2.getSupplier();
+                            break;
+//                            tempRawMaterial = curr2;
+                        }
+                    }
+                }
+                System.out.println("        Supplier: " + tempSupplier.getName());
+
+            }
+            System.out.println("*******************************************************************");
+        }
+    }
+
+
     public void cleanScreen() {
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 4; i++)
             System.out.println(" ");
     }
 
