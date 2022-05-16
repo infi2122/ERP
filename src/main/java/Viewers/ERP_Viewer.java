@@ -1,6 +1,5 @@
 package Viewers;
 
-import Controllers.manufacturingOrderController;
 import Models.*;
 
 import java.util.ArrayList;
@@ -83,22 +82,22 @@ public class ERP_Viewer {
         }
     }
 
-    public void showManufacturingOrdersCosts(ArrayList<manufacturingOrderController> arrayList, ArrayList<rawMaterialOrder> rawMaterialOrders) {
+    public void showManufacturingOrdersCosts(ArrayList<manufacturingOrder> arrayList, ArrayList<rawMaterialOrder> rawMaterialOrders) {
         if (arrayList.size() > 0) {
             System.out.println("*********************** Manufacturing Costs  **********************");
 
-            for (manufacturingOrderController curr : arrayList) {
-                System.out.println(" manufacturingID: " + curr.getManufacturing_order().getProductionID() +
-                        " total Cost: " + curr.getManufacturing_order().getTotalCost() +"€");
-                System.out.println("     Client: " + curr.getManufacturing_order().getClientOrder().getClientName() +
-                        " Quantity: " + curr.getManufacturing_order().getClientOrder().getQty() +
-                        " of type: P" + curr.getManufacturing_order().getClientOrder().getPieceType() +
-                        " for day: " + curr.getManufacturing_order().getClientOrder().getDeliveryDate());
+            for (manufacturingOrder curr : arrayList) {
+                System.out.println(" manufacturingID: " + curr.getProductionID() +
+                        " total Cost: " + curr.getTotalCost() +"€");
+                System.out.println("     Client: " + curr.getClientOrder().getClientName() +
+                        " Quantity: " + curr.getClientOrder().getQty() +
+                        " of type: P" + curr.getClientOrder().getPieceType() +
+                        " for day: " + curr.getClientOrder().getDeliveryDate());
                 supplier tempSupplier = new supplier();
 //                rawMaterialOrder tempRawMaterial = null;
                 for (rawMaterialOrder curr2 : rawMaterialOrders) {
                     for (productionInRawMaterials curr3 : curr2.getProductionInRawMaterials()) {
-                        if (curr3.getOrderID() == curr.getManufacturing_order().getProductionID()) {
+                        if (curr3.getOrderID() == curr.getProductionID()) {
                             tempSupplier = curr2.getSupplier();
                             break;
 //                            tempRawMaterial = curr2;

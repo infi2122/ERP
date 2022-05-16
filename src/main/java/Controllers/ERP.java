@@ -25,7 +25,8 @@ public class ERP {
     private long currentTime;
     private sharedResources shareResources;
     private orderCriterium orderCriterium;
-    private ArrayList<manufacturingOrderController> manufacturingOrders;
+    private ArrayList<manufacturingOrder> manufacturingOrders;
+
     private ArrayList<rawMaterialOrder> rawMaterialOrders;
     private ArrayList<productionOrder> productionOrders;
     private ArrayList<shippingOrder> shippingOrders;
@@ -34,10 +35,10 @@ public class ERP {
     private ERP_Viewer erp_viewer;
 
     // ******* CONSTRUCTOR ********
-    public ERP(orderCriterium orderCriterium, ArrayList<manufacturingOrderController> manufacturingOrderControllers,
+    public ERP(orderCriterium orderCriterium, ArrayList<manufacturingOrder> manufacturingOrders,
                ERP_Viewer erp_viewer, sharedResources sharedResources) {
         this.orderCriterium = orderCriterium;
-        this.manufacturingOrders = manufacturingOrderControllers;
+        this.manufacturingOrders = manufacturingOrders;
         this.erp_viewer = erp_viewer;
         this.shareResources = sharedResources;
         this.rawMaterialOrders = new ArrayList<>();
@@ -68,11 +69,11 @@ public class ERP {
         this.orderCriterium = orderCriterium;
     }
 
-    public ArrayList<manufacturingOrderController> getManufacturingOrders() {
+    public ArrayList<manufacturingOrder> getManufacturingOrders() {
         return manufacturingOrders;
     }
 
-    public boolean addDetailedOrder(manufacturingOrderController MyNewDetailedOrder) {
+    public boolean addmanufacturingOrder(manufacturingOrder MyNewDetailedOrder) {
         return getManufacturingOrders().add(MyNewDetailedOrder);
     }
 
@@ -157,24 +158,21 @@ public class ERP {
 
                 int orderID = getManufacturingOrders().size();
 
-                manufacturingOrderController MyNewDetailedOrder =
-                        new manufacturingOrderController(new manufacturingOrder(orderID, currOrder),
-                                new manufacturingOrder_Viewer(),
-                                new clientOrderController(currOrder, new clientOrder_Viewer()));
+                manufacturingOrder MyNewDetailedOrder = new manufacturingOrder(orderID, currOrder);
 
                 // Error testing
-                if (!addDetailedOrder(MyNewDetailedOrder))
+                if (!addmanufacturingOrder(MyNewDetailedOrder))
                     System.out.println("Error adding new detailed order to manufacturingOrderController !");
 
                 Vector<Integer> plan = getOrderCriterium().scheduler(MyNewDetailedOrder, getTime());
 
                 // SET manufacturing plan on manufacturing order
                 // SET expected Raw Material Arrival
-                MyNewDetailedOrder.getManufacturing_order().setExpectedRawMaterialArrival(plan.get(0));
+                MyNewDetailedOrder.setExpectedRawMaterialArrival(plan.get(0));
                 // SET expected production start
-                MyNewDetailedOrder.getManufacturing_order().setExpectedProdutionStart(plan.get(2));
+                MyNewDetailedOrder.setExpectedProdutionStart(plan.get(2));
                 // SET expected shipping start
-                MyNewDetailedOrder.getManufacturing_order().setExpectedShippingStart(plan.get(4));
+                MyNewDetailedOrder.setExpectedShippingStart(plan.get(4));
 
                 // Associa as RawmaterialOrders com diferentes quantidade de materias primas
                 // retorna essa relação
@@ -193,11 +191,11 @@ public class ERP {
     }
 
     private boolean check_if_clientOrder_have_manufacturingOrder
-            (clientOrder order, ArrayList<manufacturingOrderController> manufacturingOrders) {
-        for (manufacturingOrderController curr : manufacturingOrders) {
+            (clientOrder order, ArrayList<manufacturingOrder> manufacturingOrders) {
+        for (manufacturingOrder curr : manufacturingOrders) {
 
-            if (curr.getManufacturing_order().getClientOrder().getOrderNum() == order.getOrderNum()) {
-                if (curr.getManufacturing_order().getClientOrder().getClientName().equals(order.getClientName())) {
+            if (curr.getClientOrder().getOrderNum() == order.getOrderNum()) {
+                if (curr.getClientOrder().getClientName().equals(order.getClientName())) {
                     return true;
                 }
 
@@ -213,15 +211,15 @@ public class ERP {
      * @param order manufacturingOrderController
      * @return Retorna a ligação entre rawMaterialOrders e manufacturingOrders
      */
-    public ArrayList<rawMaterialOrderID_QtyRawMaterial> createRawMaterialOrder(manufacturingOrderController order) {
+    public ArrayList<rawMaterialOrderID_QtyRawMaterial> createRawMaterialOrder(manufacturingOrder order) {
         try {
-            int deadline = order.getManufacturing_order().getExpectedRawMaterialArrival();
-            int manufacturingID = order.getManufacturing_order().getProductionID();
+            int deadline = order.getExpectedRawMaterialArrival();
+            int manufacturingID = order.getProductionID();
             // O objetivo é retornar apenas as encomendas que interessam
             ArrayList<rawMaterialOrder> selection = new ArrayList<>(getRawMaterialOrders());
 
             // Elimina aquelas que são de outro tipo
-            int type = order.getClientOrderController().getClientOrder().getPieceType();
+            int type = order.getClientOrder().getPieceType();
             if (type == 6 || type == 8)
                 type = 1;
             else
@@ -260,7 +258,7 @@ public class ERP {
             // Se sobrar algo da filtragem, então vou atribuir rawMaterialOrders existentes
             // a esta nova manufacturingID, portanto vou adicionar essas atribuiçoes num vetor
             // de retorno para o production order
-            int necessaryQty = order.getClientOrderController().getClientOrder().getQty();
+            int necessaryQty = order.getClientOrder().getQty();
             ArrayList<rawMaterialOrderID_QtyRawMaterial> returnVec = new ArrayList<>();
             if (selection.size() != 0) {
 
@@ -334,13 +332,13 @@ public class ERP {
      * @param order manufacturingOrderController
      * @param vec   Retorna a ligação entre cada manufacturingOrder e as diferentes rawMaterialOrders e quantidades
      */
-    public void createProductionOrders(manufacturingOrderController order, ArrayList<rawMaterialOrderID_QtyRawMaterial> vec) {
+    public void createProductionOrders(manufacturingOrder order, ArrayList<rawMaterialOrderID_QtyRawMaterial> vec) {
 
         productionOrder newProductionOrder = new productionOrder(
-                order.getManufacturing_order().getProductionID(),
-                order.getManufacturing_order().getClientOrder().getQty(),
-                order.getManufacturing_order().getClientOrder().getPieceType(),
-                order.getManufacturing_order().getExpectedProdutionStart(),
+                order.getProductionID(),
+                order.getClientOrder().getQty(),
+                order.getClientOrder().getPieceType(),
+                order.getExpectedProdutionStart(),
                 vec
 
         );
@@ -354,12 +352,12 @@ public class ERP {
      *
      * @param order
      */
-    public void createShippingOrders(manufacturingOrderController order) {
+    public void createShippingOrders(manufacturingOrder order) {
 
         shippingOrder newShippingOrder = new shippingOrder(
-                order.getManufacturing_order().getProductionID(),
-                order.getManufacturing_order().getClientOrder().getQty(),
-                order.getManufacturing_order().getExpectedShippingStart()
+                order.getProductionID(),
+                order.getClientOrder().getQty(),
+                order.getExpectedShippingStart()
         );
         addNewShippingOrders(newShippingOrder);
 
@@ -455,12 +453,12 @@ public class ERP {
 
             String[] fields = tok.split("@", -1);
             //Irá ter 3 pos, com o ID, Production_t, SFS_t
-            for (manufacturingOrderController curr : getManufacturingOrders()) {
+            for (manufacturingOrder curr : getManufacturingOrders()) {
                 // Para a manufacturing order, dá set aos tempos de produção
-                if (curr.getManufacturing_order().getProductionID() == Integer.parseInt(fields[0])) {
+                if (curr.getProductionID() == Integer.parseInt(fields[0])) {
 
-                    curr.getManufacturing_order().setMeanProduction_t(Integer.parseInt(fields[1]));
-                    curr.getManufacturing_order().setMeanSFS_t(Integer.parseInt(fields[2]));
+                    curr.setMeanProduction_t(Integer.parseInt(fields[1]));
+                    curr.setMeanSFS_t(Integer.parseInt(fields[2]));
 
                 }
             }
@@ -474,21 +472,20 @@ public class ERP {
     private void calculateTotalCosts() {
 
         // Tenho de percorrer o vetor das manufacturingOrder
-        for (manufacturingOrderController curr : getManufacturingOrders()) {
-            manufacturingOrder manufacturingOrder = curr.getManufacturing_order();
+        for (manufacturingOrder curr : getManufacturingOrders()) {
 
             // Só faz das encomendas que ainda não tem o custo calculado
-            if (manufacturingOrder.getTotalCost() == 0 && manufacturingOrder.getMeanSFS_t() != 0 && manufacturingOrder.getMeanProduction_t() != 0) {
+            if (curr.getTotalCost() == 0 && curr.getMeanSFS_t() != 0 && curr.getMeanProduction_t() != 0) {
                 double totalCost = 0;
 
                 for (rawMaterialOrder rawOrder : getRawMaterialOrders()) {
                     for (productionInRawMaterials rawOrderDetails : rawOrder.getProductionInRawMaterials()) {
 
-                        if (rawOrderDetails.getOrderID() == manufacturingOrder.getProductionID()) {
+                        if (rawOrderDetails.getOrderID() == curr.getProductionID()) {
 
                             // Production Cost: Pc =  1 € * Pt
 
-                            int Pc = manufacturingOrder.getMeanProduction_t() * productionPrice_t;
+                            int Pc = curr.getMeanProduction_t() * productionPrice_t;
 
                             // Depreciation Cost: Dc = Rc * SFS_t * 1% (Rc : raw Material cost)
 
@@ -500,7 +497,7 @@ public class ERP {
                                 System.out.println("Supplier: " + rawOrder.getSupplier().getName() + " Rc: " + Rc);
                             }
 
-                            double Dc = Rc * ((double) manufacturingOrder.getMeanSFS_t() / oneDay) * 0.01;
+                            double Dc = Rc * ((double) curr.getMeanSFS_t() / oneDay) * 0.01;
 
                             totalCost += rawOrderDetails.getReservedQty() * (Rc + Pc + Dc);
 
@@ -508,7 +505,7 @@ public class ERP {
                     }
                 }
 //                System.out.println("Avg Cost: " + totalCost / manufacturingOrder.getClientOrder().getQty());
-                manufacturingOrder.setTotalCost((int) totalCost / manufacturingOrder.getClientOrder().getQty());
+                curr.setTotalCost((int) totalCost / curr.getClientOrder().getQty());
             }
 
         }

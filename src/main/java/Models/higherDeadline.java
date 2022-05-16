@@ -1,6 +1,5 @@
 package Models;
 
-import Controllers.manufacturingOrderController;
 import Readers.xmlTransformationsReader;
 
 import java.util.*;
@@ -29,15 +28,15 @@ public class higherDeadline extends orderCriterium {
     public static final int shipping_capacity = 9;
 
 
-    class OrdersComparator implements Comparator<manufacturingOrderController> {
+    class OrdersComparator implements Comparator<manufacturingOrder> {
 
-        public int compare(manufacturingOrderController o1, manufacturingOrderController o2) {
+        public int compare(manufacturingOrder o1, manufacturingOrder o2) {
 
-            if (o1.getManufacturing_order().getClientOrder().getDeliveryDate() ==
-                    o2.getManufacturing_order().getClientOrder().getDeliveryDate())
+            if (o1.getClientOrder().getDeliveryDate() ==
+                    o2.getClientOrder().getDeliveryDate())
                 return 0;
-            else if (o1.getManufacturing_order().getClientOrder().getDeliveryDate() >
-                    o2.getManufacturing_order().getClientOrder().getDeliveryDate())
+            else if (o1.getClientOrder().getDeliveryDate() >
+                    o2.getClientOrder().getDeliveryDate())
                 return 1;
             else
                 return -1;
@@ -46,13 +45,13 @@ public class higherDeadline extends orderCriterium {
     }
 
     @Override
-    public void ordering(ArrayList<manufacturingOrderController> MyDetailedOrder) {
+    public void ordering(ArrayList<manufacturingOrder> MyDetailedOrder) {
 
         MyDetailedOrder.sort(new OrdersComparator());
 
     }
 
-    public Vector<Integer> scheduler(manufacturingOrderController MyNewDetailedOrder, long current_t) {
+    public Vector<Integer> scheduler(manufacturingOrder MyNewDetailedOrder, long current_t) {
 
         return estimatePlan(MyNewDetailedOrder, current_t);
 
@@ -63,13 +62,13 @@ public class higherDeadline extends orderCriterium {
      * @param current_t
      * @return o plano para a nova encomenda do cliente ( unload_begin/end ...)
      */
-    public Vector<Integer> estimatePlan(manufacturingOrderController curr, long current_t) {
+    public Vector<Integer> estimatePlan(manufacturingOrder curr, long current_t) {
 
 
-        int productionID = curr.getManufacturing_order().getProductionID();
+        int productionID = curr.getProductionID();
         int unload_t, production_t, shipping_t;
 
-        clientOrder order = curr.getClientOrderController().getClientOrder();
+        clientOrder order = curr.getClientOrder();
 
         unload_t = unloadEstimation(order);
         production_t = productionEstimation(order);
