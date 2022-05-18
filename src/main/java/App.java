@@ -60,10 +60,9 @@ public class App {
 
             synchronized (erp) {
                 erp.displayInternalOrder();
-                erp.displayRawMaterialArriving();
                 erp.displayRawMaterialOrdered();
-                erp.calculateCosts();
                 erp.displayManufacturingOrdersCosts();
+                erp.displayRawMaterialArriving();
             }
         }
 
@@ -81,6 +80,7 @@ public class App {
             synchronized (erp) {
                 erp.checkNewOrders();
                 erp.send2MESinteralOrders();
+                erp.calculateCosts();
             }
         }
     }

@@ -409,6 +409,7 @@ public class ERP {
                 }
             }
         }
+
         prodString = prodString.concat("_");
 
         for (shippingOrder curr : getShippingOrders()) {
@@ -473,10 +474,9 @@ public class ERP {
 
         // Tenho de percorrer o vetor das manufacturingOrder
         for (manufacturingOrder curr : getManufacturingOrders()) {
-
+            double totalCost = 0;
             // Só faz das encomendas que ainda não tem o custo calculado
             if (curr.getTotalCost() == 0 && curr.getMeanSFS_t() != 0 && curr.getMeanProduction_t() != 0) {
-                double totalCost = 0;
 
                 for (rawMaterialOrder rawOrder : getRawMaterialOrders()) {
                     for (productionInRawMaterials rawOrderDetails : rawOrder.getProductionInRawMaterials()) {
@@ -485,7 +485,7 @@ public class ERP {
 
                             // Production Cost: Pc =  1 € * Pt
 
-                            int Pc = curr.getMeanProduction_t() * productionPrice_t;
+                            double Pc = curr.getMeanProduction_t() * productionPrice_t * rawOrderDetails.getReservedQty();
 
                             // Depreciation Cost: Dc = Rc * SFS_t * 1% (Rc : raw Material cost)
 
@@ -497,20 +497,21 @@ public class ERP {
                                 System.out.println("Supplier: " + rawOrder.getSupplier().getName() + " Rc: " + Rc);
                             }
 
-                            double Dc = Rc * ((double) curr.getMeanSFS_t() / oneDay) * 0.01;
+                            double Dc = Rc * ((double) (curr.getMeanSFS_t() / oneDay) + 1) * 0.01 * rawOrderDetails.getReservedQty();
 
-                            totalCost += rawOrderDetails.getReservedQty() * (Rc + Pc + Dc);
+                            totalCost += (Rc + Pc + Dc);
 
                         }
                     }
                 }
 //                System.out.println("Avg Cost: " + totalCost / manufacturingOrder.getClientOrder().getQty());
-                curr.setTotalCost((int) totalCost / curr.getClientOrder().getQty());
+                curr.setTotalCost((int) totalCost);
             }
 
         }
 
     }
+
 
     // ******** VIEW METHODS *********
 
