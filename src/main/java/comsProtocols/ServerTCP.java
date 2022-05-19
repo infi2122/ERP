@@ -11,6 +11,7 @@ public class ServerTCP {
     private ServerSocket serverSocket;
 
     public void start(int port, sharedResources sharedBuffer, int initialDelay, int period) {
+
         try {
 
             serverSocket = new ServerSocket(port);
@@ -36,7 +37,6 @@ public class ServerTCP {
         private BufferedWriter bw;
 
         private sharedResources sharedBuffer;
-        private boolean odd = true;
 
         public clientHandler(ServerSocket serverSocket, sharedResources erp2MES) {
             this.serverSocket = serverSocket;
@@ -60,14 +60,6 @@ public class ServerTCP {
                     e.printStackTrace();
                 }
 
-//                if (odd) {
-//                    acceptRequest("startTime");
-//                    acceptRequest("internalOrders");
-//                    //odd = false;
-//                } else {
-//                    createRequest("finishedOrdersTimes");
-//                    odd = true;
-//                }
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -85,16 +77,12 @@ public class ServerTCP {
                 if (br.readLine().equals(feature)) {
 
                     switch (feature) {
-                        case "startTime":
-                            toSend = String.valueOf(sharedBuffer.getStartTime());
-                            break;
-                        case "internalOrders":
+                        case "startTime" -> toSend = String.valueOf(sharedBuffer.getStartTime());
+                        case "internalOrders" -> {
                             toSend = sharedBuffer.getInternalOrdersConcat();
                             System.out.println(toSend);
-                            break;
-                        default:
-                            toSend = "empty";
-                            break;
+                        }
+                        default -> toSend = "empty";
                     }
                     osw = new OutputStreamWriter(socket.getOutputStream());
                     bw = new BufferedWriter(osw);
@@ -119,11 +107,9 @@ public class ServerTCP {
                 br = new BufferedReader(isr);
 
                 switch (feature) {
-                    case "finishedOrdersTimes":
-                        sharedBuffer.setFinishedOrdersInfo(br.readLine());
-                        break;
-                    default:
-                        break;
+                    case "finishedOrdersTimes" -> sharedBuffer.setFinishedOrdersInfo(br.readLine());
+                    default -> {
+                    }
                 }
 
 

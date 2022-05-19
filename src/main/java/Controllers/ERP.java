@@ -15,8 +15,7 @@ public class ERP {
     // VARIABLES
     private long startTime = 0;
     private int countdays = 0;
-    private int dayBefore = -1;
-    private static int productionPrice_t = 1;
+    private static final int productionPrice_t = 1;
 
     public final int oneDay = 60;
     public final int internalOrders_target = 1; // #days to send orders for MES
@@ -142,8 +141,7 @@ public class ERP {
 
     /**
      * Checks if exists new orders in the stack of share resources of communications
-     *
-     * @return
+     * If exists, add orders to the system
      */
     public void checkNewOrders() {
 
@@ -174,7 +172,7 @@ public class ERP {
                 // SET expected shipping start
                 MyNewDetailedOrder.setExpectedShippingStart(plan.get(4));
 
-                // Associa as RawmaterialOrders com diferentes quantidade de materias primas
+                // Associa as RawmaterialOrders com diferentes quantidades de materias primas
                 // retorna essa relação
                 ArrayList<rawMaterialOrderID_QtyRawMaterial> vec = createRawMaterialOrder(MyNewDetailedOrder);
 
@@ -296,9 +294,6 @@ public class ERP {
                     break;
                 }
             }
-            // Se o deadline for menor que o tempo que demora, entao escolho o supplier que entrega mais rapido --> SupplierC
-//            if (choosenSupplier == null)
-//                choosenSupplier = suppliers.get(2);
 
             int qtyToOrder = necessaryQty;
             if (choosenSupplier.getMinQty() > qtyToOrder) {
@@ -350,7 +345,7 @@ public class ERP {
     /**
      * Cria as shippingOrders para o ERP que serão enviadas (da forma pretendida) para o MES
      *
-     * @param order
+     * @param order manufacturing order that origins shipping order
      */
     public void createShippingOrders(manufacturingOrder order) {
 
@@ -423,7 +418,7 @@ public class ERP {
             }
         }
         shipString = shipString.concat("_");
-        String returnStr = new String();
+        String returnStr = "";
 
         returnStr = returnStr.concat(recvString);
         returnStr = returnStr.concat(prodString);
