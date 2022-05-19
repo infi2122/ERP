@@ -489,7 +489,7 @@ public class ERP {
 
                                 if (piece.getType() == rawOrder.getPieceType())
                                     Rc = piece.getUnitCost();
-                                System.out.println("Supplier: " + rawOrder.getSupplier().getName() + " Rc: " + Rc);
+                                //System.out.println("Supplier: " + rawOrder.getSupplier().getName() + " Rc: " + Rc);
                             }
 
                             double Dc = Rc * ((double) (curr.getMeanSFS_t() / oneDay) + 1) * 0.01 * rawOrderDetails.getReservedQty();

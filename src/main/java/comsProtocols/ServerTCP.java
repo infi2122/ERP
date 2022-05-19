@@ -55,7 +55,7 @@ public class ServerTCP {
                 try {
                     Thread.sleep(100);
                     createRequest("finishedOrdersTimes");
-                    System.out.println("finishedOrders from MES:" + sharedBuffer.getFinishedOrdersInfo());
+
                 }catch (InterruptedException e){
                     e.printStackTrace();
                 }
@@ -80,7 +80,6 @@ public class ServerTCP {
                         case "startTime" -> toSend = String.valueOf(sharedBuffer.getStartTime());
                         case "internalOrders" -> {
                             toSend = sharedBuffer.getInternalOrdersConcat();
-                            System.out.println(toSend);
                         }
                         default -> toSend = "empty";
                     }
