@@ -56,7 +56,7 @@ public class ServerTCP {
                     Thread.sleep(100);
                     createRequest("finishedOrdersTimes");
 
-                }catch (InterruptedException e){
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 

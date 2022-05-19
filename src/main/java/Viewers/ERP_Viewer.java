@@ -100,7 +100,6 @@ public class ERP_Viewer {
                         if (curr3.getOrderID() == curr.getProductionID()) {
                             tempSupplier = curr2.getSupplier();
                             break;
-//                            tempRawMaterial = curr2;
                         }
                     }
                 }

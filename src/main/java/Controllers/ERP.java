@@ -12,7 +12,7 @@ import java.util.Vector;
 
 public class ERP {
 
-    // VARIABLES
+    // ******* VARIABLES *******
     private long startTime = 0;
     private int countdays = 0;
     private static final int productionPrice_t = 1;
@@ -112,11 +112,11 @@ public class ERP {
         arraysOrdering.shipOrdering(getShippingOrders());
     }
 
-    // Inner Classes
 
     // ******** METHODS *********
-
-    // counts every second
+    /**
+     * counts every second
+     */
     public void countTime() {
 
         if (startTime == 0) {
@@ -358,6 +358,9 @@ public class ERP {
 
     }
 
+    /**
+     * Put internal orders encoded string into sharedResources
+     */
     public void send2MESinteralOrders() {
 
         String recvString = "";
@@ -428,12 +431,14 @@ public class ERP {
 
     }
 
+    /**
+     * Calculate the costs for every manufacturing order that was finished
+     */
     public void calculateCosts() {
 
         if (receiveFinishedOrdersStats()) {
             calculateTotalCosts();
         }
-
     }
 
     private boolean receiveFinishedOrdersStats() {
@@ -455,14 +460,11 @@ public class ERP {
 
                     curr.setMeanProduction_t(Integer.parseInt(fields[1]));
                     curr.setMeanSFS_t(Integer.parseInt(fields[2]));
-
                 }
             }
             i++;
-
         }
         return true;
-
     }
 
     private void calculateTotalCosts() {
@@ -495,16 +497,13 @@ public class ERP {
                             double Dc = Rc * ((double) (curr.getMeanSFS_t() / oneDay) + 1) * 0.01 * rawOrderDetails.getReservedQty();
 
                             totalCost += (Rc + Pc + Dc);
-
                         }
                     }
                 }
 //                System.out.println("Avg Cost: " + totalCost / manufacturingOrder.getClientOrder().getQty());
                 curr.setTotalCost((int) totalCost);
             }
-
         }
-
     }
 
 
