@@ -1,10 +1,11 @@
 package comsProtocols;
 
-public class shareResources {
+public class sharedResources {
 
     private long startTime;
     private String internalOrdersConcat;
     private String clientOrders;
+    private String finishedOrdersInfo;
 
     public long getStartTime() {
         return startTime;
@@ -30,23 +31,11 @@ public class shareResources {
         this.clientOrders = clientOrders;
     }
 
-    public void receiveNewOrder_udp(String str) {
-        setClientOrders(str);
+    public String getFinishedOrdersInfo() {
+        return finishedOrdersInfo;
     }
 
-    public String readNewOrder_udp() {
-        return getClientOrders();
+    public void setFinishedOrdersInfo(String finishedOrdersInfo) {
+        this.finishedOrdersInfo = finishedOrdersInfo;
     }
-
-    public void printInERP2MESbuffer(String str) {
-
-        setInternalOrdersConcat(str);
-        System.out.println(getInternalOrdersConcat());
-    }
-
-    public String readInERP2MESbuffer() {
-
-        return getInternalOrdersConcat();
-    }
-
 }

@@ -12,10 +12,10 @@ public class rawMaterialOrder {
     private int arrivalTime;
     private supplier supplier;
 
-    public rawMaterialOrder(int id,int qty,int manufacturingOrderID, int reservedQty_per_manuID, int orderPlaceTime,  int pieceType, supplier supplier) {
+    public rawMaterialOrder(int id, int qty, int manufacturingOrderID, int reservedQty_per_manuID, int orderPlaceTime, int pieceType, supplier supplier) {
         this.id = id;
         this.qty = qty;
-        this.idResQty_vec.add(new productionInRawMaterials(manufacturingOrderID,reservedQty_per_manuID));
+        this.idResQty_vec.add(new productionInRawMaterials(manufacturingOrderID, reservedQty_per_manuID));
         this.timeToPlaceOrder = orderPlaceTime;
         this.arrivalTime = orderPlaceTime + supplier.getDeliveryTime();
         this.pieceType = pieceType;
@@ -33,6 +33,7 @@ public class rawMaterialOrder {
     public int getQty() {
         return qty;
     }
+
     public void setQty(int qty) {
         this.qty = qty;
     }
@@ -40,6 +41,7 @@ public class rawMaterialOrder {
     public int getArrivalTime() {
         return arrivalTime;
     }
+
     public void setArrivalTime(int arrivalTime) {
         this.arrivalTime = arrivalTime;
     }
@@ -47,6 +49,7 @@ public class rawMaterialOrder {
     public supplier getSupplier() {
         return supplier;
     }
+
     public void setSupplier(supplier supplier) {
         this.supplier = supplier;
     }
@@ -57,12 +60,13 @@ public class rawMaterialOrder {
 
     public void addProductionInRawMaterials(int manufacturingOrder, int reservedQty) {
 
-        getProductionInRawMaterials().add(new productionInRawMaterials(manufacturingOrder,reservedQty));
+        getProductionInRawMaterials().add(new productionInRawMaterials(manufacturingOrder, reservedQty));
     }
 
     public int getPieceType() {
         return pieceType;
     }
+
     public void setPieceType(int pieceType) {
         this.pieceType = pieceType;
     }
@@ -70,7 +74,10 @@ public class rawMaterialOrder {
     public int getOrderPlaceTime() {
         return timeToPlaceOrder;
     }
+
     public void setOrderPlaceTime(int orderPlaceTime) {
         this.timeToPlaceOrder = orderPlaceTime;
     }
+
+
 }

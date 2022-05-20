@@ -20,7 +20,6 @@ public class suppliersList {
             curr.addNewRawPiece(pieces.get(i+1));
             i+=2;
         }
-        //showSuppliersItems(suppliers);
         return suppliers;
 
     }
@@ -32,5 +31,4 @@ public class suppliersList {
 
     }
 
-    // para alem de ler pode returnar qual o supplier para uma dada quantidade/prazo/preço
 }

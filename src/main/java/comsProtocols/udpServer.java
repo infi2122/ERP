@@ -11,13 +11,9 @@ import java.util.concurrent.TimeUnit;
 
 public class udpServer {
 
-    /* Thread timing */
-    private int initialDelay = 0;
-    private int periodicDelay = 1;
-
     private DatagramSocket socket;
 
-    public void start(int port, shareResources sharedBuffer) {
+    public void start(int port, sharedResources sharedBuffer, int initialDelay, int period) {
 
         try {
             socket = new DatagramSocket(port);
@@ -27,7 +23,7 @@ public class udpServer {
 
             Runnable task =  new Handler(socket,sharedBuffer);
 
-            scheduler.scheduleAtFixedRate(task,initialDelay,periodicDelay, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(task,initialDelay,period, TimeUnit.SECONDS);
 
         } catch (SocketException e) {
             e.printStackTrace();
@@ -39,9 +35,9 @@ public class udpServer {
     private static class Handler extends Thread {
 
         DatagramSocket socket;
-        private shareResources buffer;
+        private sharedResources buffer;
 
-        Handler(DatagramSocket socket, shareResources sharedBuffer) {
+        Handler(DatagramSocket socket, sharedResources sharedBuffer) {
             this.socket = socket;
             this.buffer = sharedBuffer;
         }
@@ -65,14 +61,12 @@ public class udpServer {
             String received
                     = new String(rpkt.getData(), rpkt.getOffset(), rpkt.getLength()).trim();
             buffer.setClientOrders(received);
-            return;
-
         }
     }
 
-    public static void main(String args[]) {
-        udpServer server = new udpServer();
-        server.start(54321, new shareResources());
-    }
+//    public static void main(String args[]) {
+//        udpServer server = new udpServer();
+//        server.start(54321, new shareResources());
+//    }
 
 }

@@ -7,17 +7,17 @@ public class manufacturingOrder {
     private int expectedRawMaterialArrival;
     private int expectedProdutionStart;
     private int expectedShippingStart;
-    private float productionTime;
-    private int entryWHarrival_t;
-    private int productionStart_t;
-    private int productionEnd_t;
-    private int shippingStar_t;
-    private int shippingEnd_t;
+    private int meanSFS_t;
+    private int meanProduction_t;
+    private int totalCost;
     private clientOrder clientOrder;
 
     public manufacturingOrder(int productionID, clientOrder clientOrder) {
         this.productionID = productionID;
         this.clientOrder = clientOrder;
+        this.meanSFS_t = 0;
+        this.meanProduction_t = 0;
+        this.totalCost = 0;
     }
 
     public int getProductionID() {
@@ -48,59 +48,33 @@ public class manufacturingOrder {
         this.expectedShippingStart = expectedShippingStart;
     }
 
-    public float getProductionTime() {
-        return productionTime;
+    public int getMeanSFS_t() {
+        return meanSFS_t;
     }
 
-    public void setProductionTime(float productionTime) {
-        this.productionTime = productionTime;
+    public void setMeanSFS_t(int meanSFS_t) {
+        this.meanSFS_t = meanSFS_t;
     }
 
-    public int getEntryWHarrival_t() {
-        return entryWHarrival_t;
+    public int getMeanProduction_t() {
+        return meanProduction_t;
     }
 
-    public void setEntryWHarrival_t(int entryWHarrival_t) {
-        this.entryWHarrival_t = entryWHarrival_t;
+    public void setMeanProduction_t(int meanProduction_t) {
+        this.meanProduction_t = meanProduction_t;
     }
 
-    public int getProductionStart_t() {
-        return productionStart_t;
+    public int getTotalCost() {
+        return totalCost;
     }
 
-    public void setProductionStart_t(int productionStart_t) {
-        this.productionStart_t = productionStart_t;
-    }
-
-    public int getProductionEnd_t() {
-        return productionEnd_t;
-    }
-
-    public void setProductionEnd_t(int productionEnd_t) {
-        this.productionEnd_t = productionEnd_t;
-    }
-
-    public int getShippingStar_t() {
-        return shippingStar_t;
-    }
-
-    public void setShippingStar_t(int shippingStar_t) {
-        this.shippingStar_t = shippingStar_t;
-    }
-
-    public int getShippingEnd_t() {
-        return shippingEnd_t;
-    }
-
-    public void setShippingEnd_t(int shippingEnd_t) {
-        this.shippingEnd_t = shippingEnd_t;
+    public void setTotalCost(int totalCost) {
+        this.totalCost = totalCost;
     }
 
     public clientOrder getClientOrder() {
         return clientOrder;
     }
-
-
 
 
 }
