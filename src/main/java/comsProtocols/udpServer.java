@@ -48,7 +48,8 @@ public class udpServer {
             DatagramPacket rpkt = new DatagramPacket(rbuf, rbuf.length);
 
             try {
-
+                if(socket.isClosed())
+                    return;
                 socket.receive(rpkt);
             } catch (IOException e) {
                 e.printStackTrace();

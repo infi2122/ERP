@@ -2,12 +2,31 @@ package Viewers;
 
 import Models.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class ERP_Viewer {
 
+    public void showMenu(){
+        System.out.println("*******************************************************************");
+        System.out.println("   1 -> Display Internal Orders ");
+        System.out.println("   2 -> Display Raw Materials Ordered");
+        System.out.println("   3 -> Display Manufacturing Costs");
+        System.out.println("-------------------------------------------------------------------");
+        System.out.println("   0 -> Close ERP program");
+        System.out.println("*******************************************************************");
+
+    }
+    public void showCurrentDay(int day){
+        System.out.println("-----------------------");
+        System.out.println("     Current Day: " + day);
+        System.out.println("-----------------------");
+    }
+
     public void showInternalOrders(ArrayList<rawMaterialOrder> recv, ArrayList<productionOrder> prod, ArrayList<shippingOrder> ship, int currDay) {
-        if (recv.size() == 0 && prod.size() == 0 && ship.size() == 0)
+
+         if (recv.size() == 0 && prod.size() == 0 && ship.size() == 0)
             return;
 
         //showInternalOrdersHistory(recv,prod,ship,currDay);
@@ -39,7 +58,10 @@ public class ERP_Viewer {
                     + " Qty: " + curr.getQty());
         }
         System.out.println("*******************************************************************");
-        System.out.println(" ");
+        System.out.println("PRESS 'e' to exit!");
+        Scanner input = new Scanner(System.in);
+        while (!(input.nextLine().equals("e") || input.nextLine().equals("E")));
+
 
     }
 
@@ -79,6 +101,9 @@ public class ERP_Viewer {
                 }
             }
             System.out.println("*******************************************************************");
+            System.out.println("PRESS 'e' to exit!");
+            Scanner input = new Scanner(System.in);
+            while (!(input.nextLine().equals("e") || input.nextLine().equals("E")));
         }
     }
 
@@ -107,13 +132,17 @@ public class ERP_Viewer {
 
             }
             System.out.println("*******************************************************************");
+            System.out.println("PRESS 'e' to exit!");
+            Scanner input = new Scanner(System.in);
+            while (!(input.nextLine().equals("e") || input.nextLine().equals("E")));
         }
     }
 
 
+
     public void cleanScreen() {
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i <5; i++)
             System.out.println(" ");
     }
 

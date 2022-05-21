@@ -1,11 +1,16 @@
 import Controllers.ERP;
+import SQL.dbFunctions;
 import comsProtocols.sharedResources;
 import Models.higherDeadline;
 import comsProtocols.ServerTCP;
 import comsProtocols.udpServer;
 import Viewers.ERP_Viewer;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -24,26 +29,46 @@ public class App {
         shareResources.setFinishedOrdersInfo("empty");
         /* *************************************** */
 
-        ERP erp = new ERP(new higherDeadline(), new ArrayList<>(), new ERP_Viewer(), shareResources);
-        //SQL sql = new SQL();
-        //sql.createSQLtables();
+        dbFunctions sql = new dbFunctions();
+        sql.dropSQLtables();
+        sql.createSQLtables();
+        ERP erp = new ERP(new higherDeadline(), new ArrayList<>(), new ERP_Viewer(), shareResources, sql);
 
         /* UDP Listener for new orders */
         udpServer udpThread = new udpServer();
-        udpThread.start(portClientOrders, shareResources,0,5);
+        udpThread.start(portClientOrders, shareResources, 0, 5);
         /* *************************************** */
 
         /* TCP/IP for MES communications */
         ServerTCP server = new ServerTCP();
-        server.start(ERP_to_MES_port, shareResources,0,59);
+        server.start(ERP_to_MES_port, shareResources, 0, 59);
         /* *************************************** */
 
+        // ATENÇAO AOS PERIODOS DAS THREADS, alguma alteração pode levar a coisas estranhas!!!
         ScheduledExecutorService schedulerERP = Executors.newScheduledThreadPool(3);
         schedulerERP.scheduleAtFixedRate(new myTimer(erp), 0, 1, TimeUnit.SECONDS);
         schedulerERP.scheduleAtFixedRate(new myERP(erp), 0, 60, TimeUnit.SECONDS);
         schedulerERP.scheduleAtFixedRate(new myERPClientOrders(erp), 5, 20, TimeUnit.SECONDS);
 
-        //ATENÇAO AOS PERIODOS DAS THREADS, alguma alteração pode levar a coisas estranhas!!!
+        Scanner input = new Scanner(System.in);
+        // CONTEXT MENU
+        boolean exit = true;
+        while (exit) {
+            erp.displayMenu();
+            switch (input.nextInt()) {
+                case 1 -> erp.displayInternalOrder();
+                case 2 -> erp.displayRawMaterialOrdered();
+                case 3 -> erp.displayManufacturingOrdersCosts();
+                case 0 -> exit = false;
+                default -> {
+                }
+            }
+            erp.cleanTerminal();
+            if (exit)
+                erp.displayCurrentDay();
+        }
+
+        System.exit(0);
 
     }
 
@@ -59,9 +84,9 @@ public class App {
         public void run() {
 
             synchronized (erp) {
-                erp.displayInternalOrder();
-                erp.displayRawMaterialOrdered();
-                erp.displayManufacturingOrdersCosts();
+                //  erp.displayInternalOrder();
+                // erp.displayRawMaterialOrdered();
+                // erp.displayManufacturingOrdersCosts();
                 erp.displayRawMaterialArriving();
             }
         }
@@ -81,6 +106,7 @@ public class App {
                 erp.checkNewOrders();
                 erp.send2MESinteralOrders();
                 erp.calculateCosts();
+                erp.updateDB();
             }
         }
     }
