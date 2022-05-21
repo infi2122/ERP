@@ -9,6 +9,7 @@ public class manufacturingOrder {
     private int expectedShippingStart;
     private int meanSFS_t;
     private int meanProduction_t;
+    private int finalDay;
     private int totalCost;
     private clientOrder clientOrder;
 
@@ -17,6 +18,7 @@ public class manufacturingOrder {
         this.clientOrder = clientOrder;
         this.meanSFS_t = 0;
         this.meanProduction_t = 0;
+        this.finalDay = 0;
         this.totalCost = 0;
     }
 
@@ -62,6 +64,14 @@ public class manufacturingOrder {
 
     public void setMeanProduction_t(int meanProduction_t) {
         this.meanProduction_t = meanProduction_t;
+    }
+
+    public int getFinalDay() {
+        return finalDay;
+    }
+
+    public void setFinalDay(int finalDay) {
+        this.finalDay = finalDay;
     }
 
     public int getTotalCost() {

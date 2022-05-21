@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class ERP_Viewer {
 
-    public void showMenu(){
+    public void showMenu() {
         System.out.println("*******************************************************************");
         System.out.println("   1 -> Display Internal Orders ");
         System.out.println("   2 -> Display Raw Materials Ordered");
@@ -18,7 +18,8 @@ public class ERP_Viewer {
         System.out.println("*******************************************************************");
 
     }
-    public void showCurrentDay(int day){
+
+    public void showCurrentDay(int day) {
         System.out.println("-----------------------");
         System.out.println("     Current Day: " + day);
         System.out.println("-----------------------");
@@ -26,7 +27,7 @@ public class ERP_Viewer {
 
     public void showInternalOrders(ArrayList<rawMaterialOrder> recv, ArrayList<productionOrder> prod, ArrayList<shippingOrder> ship, int currDay) {
 
-         if (recv.size() == 0 && prod.size() == 0 && ship.size() == 0)
+        if (recv.size() == 0 && prod.size() == 0 && ship.size() == 0)
             return;
 
         //showInternalOrdersHistory(recv,prod,ship,currDay);
@@ -60,7 +61,7 @@ public class ERP_Viewer {
         System.out.println("*******************************************************************");
         System.out.println("PRESS 'e' to exit!");
         Scanner input = new Scanner(System.in);
-        while (!(input.nextLine().equals("e") || input.nextLine().equals("E")));
+        while (!(input.nextLine().equals("e") || input.nextLine().equals("E"))) ;
 
 
     }
@@ -103,7 +104,7 @@ public class ERP_Viewer {
             System.out.println("*******************************************************************");
             System.out.println("PRESS 'e' to exit!");
             Scanner input = new Scanner(System.in);
-            while (!(input.nextLine().equals("e") || input.nextLine().equals("E")));
+            while (!(input.nextLine().equals("e") || input.nextLine().equals("E"))) ;
         }
     }
 
@@ -112,37 +113,38 @@ public class ERP_Viewer {
             System.out.println("*********************** Manufacturing Costs  **********************");
 
             for (manufacturingOrder curr : arrayList) {
-                System.out.println(" manufacturingID: " + curr.getProductionID() +
-                        " total Cost: " + curr.getTotalCost() +"€");
-                System.out.println("     Client: " + curr.getClientOrder().getClientName() +
-                        " Quantity: " + curr.getClientOrder().getQty() +
-                        " of type: P" + curr.getClientOrder().getPieceType() +
-                        " for day: " + curr.getClientOrder().getDeliveryDate());
-                supplier tempSupplier = new supplier();
+                if (curr.getTotalCost() > 0) {
+                    System.out.println(" manufacturingID: " + curr.getProductionID() +
+                            " total Cost: " + curr.getTotalCost() + "€");
+                    System.out.println("     Client: " + curr.getClientOrder().getClientName() +
+                            " Quantity: " + curr.getClientOrder().getQty() +
+                            " of type: P" + curr.getClientOrder().getPieceType() +
+                            " for day: " + curr.getClientOrder().getDeliveryDate());
+                    supplier tempSupplier = new supplier();
 //                rawMaterialOrder tempRawMaterial = null;
-                for (rawMaterialOrder curr2 : rawMaterialOrders) {
-                    for (productionInRawMaterials curr3 : curr2.getProductionInRawMaterials()) {
-                        if (curr3.getOrderID() == curr.getProductionID()) {
-                            tempSupplier = curr2.getSupplier();
-                            break;
+                    for (rawMaterialOrder curr2 : rawMaterialOrders) {
+                        for (productionInRawMaterials curr3 : curr2.getProductionInRawMaterials()) {
+                            if (curr3.getOrderID() == curr.getProductionID()) {
+                                tempSupplier = curr2.getSupplier();
+                                break;
+                            }
                         }
                     }
+                    System.out.println("        Supplier: " + tempSupplier.getName());
                 }
-                System.out.println("        Supplier: " + tempSupplier.getName());
 
             }
             System.out.println("*******************************************************************");
             System.out.println("PRESS 'e' to exit!");
             Scanner input = new Scanner(System.in);
-            while (!(input.nextLine().equals("e") || input.nextLine().equals("E")));
+            while (!(input.nextLine().equals("e") || input.nextLine().equals("E"))) ;
         }
     }
 
 
-
     public void cleanScreen() {
 
-        for (int i = 0; i <5; i++)
+        for (int i = 0; i < 5; i++)
             System.out.println(" ");
     }
 

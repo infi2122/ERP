@@ -465,6 +465,7 @@ public class ERP {
 
                     curr.setMeanProduction_t(Integer.parseInt(fields[1]));
                     curr.setMeanSFS_t(Integer.parseInt(fields[2]));
+                    curr.setFinalDay(Integer.parseInt(fields[3]));
                 }
             }
             i++;
@@ -506,9 +507,21 @@ public class ERP {
                     }
                 }
 //                System.out.println("Avg Cost: " + totalCost / manufacturingOrder.getClientOrder().getQty());
-                curr.setTotalCost((int) totalCost);
             }
+
+            // Calcula se houve dias de antecipados/atraso e impoe as penalizaçoes descritas nas encomendas do cliente
+            int penalizationDays = curr.getClientOrder().getDeliveryDate() - curr.getFinalDay();
+
+            if (penalizationDays > 0) { // Ficou pronta antecipadamente
+                totalCost += penalizationDays * curr.getClientOrder().getPenAdvance();
+            } else if (penalizationDays < 0) { // Ficou pronta depois do prazo
+                totalCost += penalizationDays * (-1) * curr.getClientOrder().getPenDelay();
+            }
+
+            curr.setTotalCost((int) totalCost);
         }
+
+
     }
 
     /**
@@ -533,8 +546,12 @@ public class ERP {
 
         for (manufacturingOrder curr : getManufacturingOrders()) {
 
-            sql.insertClientOrder(curr.getClientOrder().getClientName(), curr.getClientOrder().getOrderNum(), curr.getClientOrder().getPieceType(), curr.getClientOrder().getQty(), curr.getClientOrder().getDeliveryDate(), curr.getClientOrder().getPenDelay(), curr.getClientOrder().getPenAdvance());
-            sql.insertManufacturingOrder(curr.getProductionID(), curr.getClientOrder().getClientName(), curr.getExpectedRawMaterialArrival(), curr.getExpectedProdutionStart(), curr.getExpectedShippingStart(), curr.getMeanSFS_t(), curr.getMeanProduction_t(), curr.getTotalCost(), curr.getClientOrder().getOrderNum());
+            sql.insertClientOrder(curr.getClientOrder().getClientName(), curr.getClientOrder().getOrderNum(), curr.getClientOrder().getPieceType(),
+                    curr.getClientOrder().getQty(), curr.getClientOrder().getDeliveryDate(), curr.getClientOrder().getPenDelay(), curr.getClientOrder().getPenAdvance());
+
+            sql.insertManufacturingOrder(curr.getProductionID(), curr.getClientOrder().getClientName(), curr.getExpectedRawMaterialArrival(),
+                    curr.getExpectedProdutionStart(), curr.getExpectedShippingStart(), curr.getMeanSFS_t(), curr.getMeanProduction_t(), curr.getFinalDay(),
+                    curr.getTotalCost(), curr.getClientOrder().getOrderNum());
 
         }
 
@@ -640,11 +657,11 @@ public class ERP {
 
 
     // ******** VIEW METHODS *********
-    public void displayMenu(){
+    public void displayMenu() {
         getErp_viewer().showMenu();
     }
 
-    public void displayCurrentDay(){
+    public void displayCurrentDay() {
         getErp_viewer().showCurrentDay(countdays);
     }
 
@@ -663,7 +680,8 @@ public class ERP {
     public void displayManufacturingOrdersCosts() {
         getErp_viewer().showManufacturingOrdersCosts(getManufacturingOrders(), getRawMaterialOrders());
     }
-    public void cleanTerminal(){
+
+    public void cleanTerminal() {
         getErp_viewer().cleanScreen();
     }
 }

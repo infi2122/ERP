@@ -23,82 +23,94 @@ public class dbFunctions {
         }
     }
 
-    public Connection getConnection() {return conn;}
-    public Statement getStatement() {return st;}
-    public ResultSet getResultSet(){ return rs;}
-    public String getStringFromRS(String parameter){
+    public Connection getConnection() {
+        return conn;
+    }
+
+    public Statement getStatement() {
+        return st;
+    }
+
+    public ResultSet getResultSet() {
+        return rs;
+    }
+
+    public String getStringFromRS(String parameter) {
         String s = null;
         try {
             s = rs.getString(parameter);
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Sql exception: RS error");
         }
         return s;
     }
-    public int getIntFromRS(String parameter){
+
+    public int getIntFromRS(String parameter) {
         int i = 0;
         try {
             i = rs.getInt(parameter);
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Sql exception: RS error");
         }
         return i;
     }
 
-    public double getDoubleFromRS(String parameter){
+    public double getDoubleFromRS(String parameter) {
         double d = 0;
         try {
             d = rs.getDouble(parameter);
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Sql exception: RS error");
         }
         return d;
     }
 
-    public long getLongFromRS(String parameter){
+    public long getLongFromRS(String parameter) {
         long l = 0;
         try {
             l = rs.getLong(parameter);
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Sql exception: RS error");
         }
         return l;
     }
 
-    public boolean getBoolFromRS(String parameter){
+    public boolean getBoolFromRS(String parameter) {
         boolean b = false;
         try {
             b = rs.getBoolean(parameter);
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Sql exception: RS error");
         }
         return b;
     }
 
 
-    public boolean hasRows(String table){
+    public boolean hasRows(String table) {
         try {
-            rs = st.executeQuery("SELECT * FROM "+table);
+            rs = st.executeQuery("SELECT * FROM " + table);
         } catch (Exception ex) {
             rs = null;
             return false;
         }
 
-        try{
-            if(rs.next()==false) return false;
+        try {
+            if (rs.next() == false) return false;
             else return true;
-        }catch(Exception ex){
+        } catch (Exception ex) {
             System.out.println("No rows");
         }
         return false;
     }
-    public List<Object> getERPFields(){
+
+    public List<Object> getERPFields() {
         int erpID = getIntFromRS("erpID");
         int currentTime = getIntFromRS("currentTime");
 
-        return Arrays.asList(erpID,currentTime);
+        return Arrays.asList(erpID, currentTime);
     }
-    public List<Object> getClientOrderFields(){
+
+    public List<Object> getClientOrderFields() {
         /*try {
             rs = st.executeQuery("SELECT * FROM warehouse");
             rs.next();
@@ -115,23 +127,26 @@ public class dbFunctions {
         long penAdvance = getLongFromRS("penAdvance");
 
 
-        return Arrays.asList(name,orderNum,pieceType,qty,deliveryDate,penDelay,penAdvance);
+        return Arrays.asList(name, orderNum, pieceType, qty, deliveryDate, penDelay, penAdvance);
     }
-    public List<Object> getInternalOrdersFields(){
+
+    public List<Object> getInternalOrdersFields() {
         int startDate = getIntFromRS("startDate");
         int orderID = getIntFromRS("orderID");
 
         return Arrays.asList(startDate, orderID);
     }
-    public List<Object> getManufacturingOrderFields(){
+
+    public List<Object> getManufacturingOrderFields() {
         int productionID = getIntFromRS("productionID");
         double productionTime = getDoubleFromRS("productionTime");
         int beginDate = getIntFromRS("beginDate");
         int endDate = getIntFromRS("endDate");
 
-        return Arrays.asList(productionID,productionTime,beginDate,endDate);
+        return Arrays.asList(productionID, productionTime, beginDate, endDate);
     }
-    public List<Object> getRawMaterialOrderFields(){
+
+    public List<Object> getRawMaterialOrderFields() {
 
         int qty = getIntFromRS("qty");
         int reserved_qty = getIntFromRS("reserved_qty");
@@ -140,19 +155,19 @@ public class dbFunctions {
         int arrivalTime = getIntFromRS("arrivalTime");
         int pk_RawMaterialOrder = getIntFromRS("pk_RawMaterialOrder");
 
-        return Arrays.asList(qty,reserved_qty,piece_type,timeToPlaceOrder);
+        return Arrays.asList(qty, reserved_qty, piece_type, timeToPlaceOrder);
     }
 
-    public List<Object> getSupplierFields(){
+    public List<Object> getSupplierFields() {
 
         String name = getStringFromRS("name");
         int deliveryTime = getIntFromRS("deliveryTime");
         int minQty = getIntFromRS("minQty");
 
-        return Arrays.asList(name,deliveryTime,minQty);
+        return Arrays.asList(name, deliveryTime, minQty);
     }
 
-    public List<Object> getRawPieceFields(){
+    public List<Object> getRawPieceFields() {
 
         int type = getIntFromRS("type");
         int unitCost = getIntFromRS("unitCost");
@@ -160,7 +175,7 @@ public class dbFunctions {
         return Arrays.asList(type, unitCost);
     }
 
-    public void executeQuery(String str){
+    public void executeQuery(String str) {
         //System.out.println(str);
         try {
             st.executeUpdate(str);
@@ -171,32 +186,32 @@ public class dbFunctions {
 
 
     public void insertERP(int erpID, long currentTime, int countdays) {
-        String query = "INSERT INTO \"erp\" VALUES(" + erpID + "," + currentTime + ", "+countdays+");";
+        String query = "INSERT INTO \"erp\" VALUES(" + erpID + "," + currentTime + ", " + countdays + ");";
         executeQuery(query);
     }
 
     public void insertsharedResources(long startTime, String internalOrdersConcat, String clientOrders, String finishedOrdersInfo) {
-        String query = "INSERT INTO \"sharedResources\" VALUES(" + startTime + ",'" + internalOrdersConcat + "', '"+clientOrders+"', '"+finishedOrdersInfo+"');";
+        String query = "INSERT INTO \"sharedResources\" VALUES(" + startTime + ",'" + internalOrdersConcat + "', '" + clientOrders + "', '" + finishedOrdersInfo + "');";
         executeQuery(query);
         System.out.println(query);
     }
 
-    public void updatesharedResources(long startTime, String internalOrdersConcat, String clientOrders, String finishedOrdersInfo){
+    public void updatesharedResources(long startTime, String internalOrdersConcat, String clientOrders, String finishedOrdersInfo) {
 
-        String query = "UPDATE \"sharedResources\" SET \"internalOrdersConcat\" ="+internalOrdersConcat+" WHERE \"startTime\" ="+startTime;
+        String query = "UPDATE \"sharedResources\" SET \"internalOrdersConcat\" =" + internalOrdersConcat + " WHERE \"startTime\" =" + startTime;
         executeQuery(query);
-        query = "UPDATE \"sharedResources\" SET \"clientOrders\" ="+clientOrders+" WHERE \"startTime\" ="+startTime;
+        query = "UPDATE \"sharedResources\" SET \"clientOrders\" =" + clientOrders + " WHERE \"startTime\" =" + startTime;
         executeQuery(query);
-        query = "UPDATE \"sharedResources\" SET \"finishedOrdersInfo\" ="+finishedOrdersInfo+" WHERE \"startTime\" ="+startTime;
+        query = "UPDATE \"sharedResources\" SET \"finishedOrdersInfo\" =" + finishedOrdersInfo + " WHERE \"startTime\" =" + startTime;
         executeQuery(query);
         //System.out.println(query);
     }
 
-    public boolean checkERP(int erpID){
+    public boolean checkERP(int erpID) {
         //String query = "INSERT INTO Supplier VALUES('"+name+"',"+deliveryTime+", "+minQty+");";
         //String query = "SELECT exists (select * FROM manufacturingOrder WHERE productionID = "+productionID_value+");";
         //executeQuery(query);
-        String query = "SELECT * FROM \"erp\" WHERE \"erpID\" = "+erpID;
+        String query = "SELECT * FROM \"erp\" WHERE \"erpID\" = " + erpID;
         //System.out.println(query);
 
         try {
@@ -206,10 +221,10 @@ public class dbFunctions {
             return false;
         }
 
-        try{
-            if(rs.next()==false) return false;
+        try {
+            if (rs.next() == false) return false;
             else return true;
-        }catch(Exception ex){
+        } catch (Exception ex) {
             System.out.println("No values");
         }
         return false;
@@ -217,29 +232,29 @@ public class dbFunctions {
 
     }
 
-    public void updateERP(int erpID, long currentTime, int countdays){
+    public void updateERP(int erpID, long currentTime, int countdays) {
 
-        String query = "UPDATE \"erp\" SET \"currentTime\" ="+currentTime+" WHERE \"erpID\" ="+erpID;
+        String query = "UPDATE \"erp\" SET \"currentTime\" =" + currentTime + " WHERE \"erpID\" =" + erpID;
         executeQuery(query);
-        query = "UPDATE \"erp\" SET \"countdays\" ="+countdays+" WHERE \"erpID\" ="+erpID;
+        query = "UPDATE \"erp\" SET \"countdays\" =" + countdays + " WHERE \"erpID\" =" + erpID;
         executeQuery(query);
         //System.out.println(query);
     }
 
 
     public void insertClientOrder(String clientName, int orderNum, int pieceType, int qty, int deliveryDate, float penDelay,
-                                  float penAdvance){
-        String query = "INSERT INTO \"ClientOrder\" VALUES('"+clientName+"',"+orderNum+","+pieceType+","+qty+", "+deliveryDate+"," +
-                penDelay+", "+penAdvance+");";
+                                  float penAdvance) {
+        String query = "INSERT INTO \"ClientOrder\" VALUES('" + clientName + "'," + orderNum + "," + pieceType + "," + qty + ", " + deliveryDate + "," +
+                penDelay + ", " + penAdvance + ");";
         executeQuery(query);
         //System.out.println(query);
     }
 
-    public boolean checkmanufacturingOrderproductionID(int productionID_value){
+    public boolean checkmanufacturingOrderproductionID(int productionID_value) {
         //String query = "INSERT INTO Supplier VALUES('"+name+"',"+deliveryTime+", "+minQty+");";
         //String query = "SELECT exists (select * FROM manufacturingOrder WHERE productionID = "+productionID_value+");";
         //executeQuery(query);
-        String query = "SELECT * FROM \"manufacturingOrder\" WHERE \"productionID\" = "+productionID_value;
+        String query = "SELECT * FROM \"manufacturingOrder\" WHERE \"productionID\" = " + productionID_value;
         //System.out.println(query);
 
         try {
@@ -249,44 +264,48 @@ public class dbFunctions {
             return false;
         }
 
-        try{
-            if(rs.next()==false) return false;
+        try {
+            if (rs.next() == false) return false;
             else return true;
-        }catch(Exception ex){
+        } catch (Exception ex) {
             System.out.println("No values");
         }
         return false;
 
 
     }
-    public void insertManufacturingOrder(int productionID, String ClientName, int expectedRawMaterialArrival, int expectedProductionStart, int expectedShippingStart, int meanSFS_t, int meanProduction_t, int totalCost, int orderNum){
-        String query = "INSERT INTO \"manufacturingOrder\" VALUES("+productionID+",'"+ ClientName+"'," +
-                expectedRawMaterialArrival+","+expectedProductionStart+"," + expectedShippingStart + ", "+meanSFS_t+", "+meanProduction_t+", "+totalCost+", "+orderNum+", 1);";
+
+    public void insertManufacturingOrder(int productionID, String ClientName, int expectedRawMaterialArrival, int expectedProductionStart,
+                                         int expectedShippingStart, int meanSFS_t, int meanProduction_t, int finalDay, int totalCost, int orderNum) {
+        String query = "INSERT INTO \"manufacturingOrder\" VALUES(" + productionID + ",'" + ClientName + "'," +
+                expectedRawMaterialArrival + "," + expectedProductionStart + "," + expectedShippingStart + ", " + meanSFS_t + ", " + meanProduction_t + ", " + finalDay + ", " + totalCost + ", " + orderNum + ", 1);";
         executeQuery(query);
         //System.out.println(query);
     }
 
-    public void updateManufacturingOrder(int productionID, int expectedRawMaterialArrival, int expectedProductionStart, int expectedShippingStart, int meanSFS_t, int meanProduction_t, int totalCost){
+    public void updateManufacturingOrder(int productionID, int expectedRawMaterialArrival, int expectedProductionStart, int expectedShippingStart, int meanSFS_t, int meanProduction_t, int finalDay, int totalCost) {
 
-        String query = "UPDATE \"manufacturingOrder\" SET \"expectedRawMaterialArrival\"="+expectedRawMaterialArrival+" WHERE \"productionID\"="+productionID;
+        String query = "UPDATE \"manufacturingOrder\" SET \"expectedRawMaterialArrival\"=" + expectedRawMaterialArrival + " WHERE \"productionID\"=" + productionID;
         executeQuery(query);
-        query = "UPDATE \"manufacturingOrder\" SET \"expectedProductionStart\"="+expectedProductionStart+" WHERE \"productionID\"="+productionID;
+        query = "UPDATE \"manufacturingOrder\" SET \"expectedProductionStart\"=" + expectedProductionStart + " WHERE \"productionID\"=" + productionID;
         executeQuery(query);
-        query = "UPDATE \"manufacturingOrder\" SET \"expectedShippingStart\"="+expectedShippingStart+" WHERE \"productionID\"="+productionID;
+        query = "UPDATE \"manufacturingOrder\" SET \"expectedShippingStart\"=" + expectedShippingStart + " WHERE \"productionID\"=" + productionID;
         executeQuery(query);
-        query = "UPDATE \"manufacturingOrder\" SET \"meanSFS_t\"="+meanSFS_t+" WHERE \"productionID\"="+productionID;
+        query = "UPDATE \"manufacturingOrder\" SET \"meanSFS_t\"=" + meanSFS_t + " WHERE \"productionID\"=" + productionID;
         executeQuery(query);
-        query = "UPDATE \"manufacturingOrder\" SET \"meanProduction_t\"="+meanProduction_t+" WHERE \"productionID\"="+productionID;
+        query = "UPDATE \"manufacturingOrder\" SET \"meanProduction_t\"=" + meanProduction_t + " WHERE \"productionID\"=" + productionID;
         executeQuery(query);
-        query = "UPDATE \"manufacturingOrder\" SET \"totalCost\"="+totalCost+" WHERE \"productionID\"="+productionID;
+        query = "UPDATE \"manufacturingOrder\" SET \"finalDay\"=" + finalDay + " WHERE \"productionID\"=" + productionID;
+        executeQuery(query);
+        query = "UPDATE \"manufacturingOrder\" SET \"totalCost\"=" + totalCost + " WHERE \"productionID\"=" + productionID;
         executeQuery(query);
     }
 
-    public boolean checkshippingOrdermanufacturingID(int manufacturingID_value){
+    public boolean checkshippingOrdermanufacturingID(int manufacturingID_value) {
         //String query = "INSERT INTO Supplier VALUES('"+name+"',"+deliveryTime+", "+minQty+");";
         //String query = "SELECT exists (select * FROM manufacturingOrder WHERE productionID = "+productionID_value+");";
         //executeQuery(query);
-        String query = "SELECT * FROM \"ShippingOrder\" WHERE \"manufacturingID\" = "+manufacturingID_value;
+        String query = "SELECT * FROM \"ShippingOrder\" WHERE \"manufacturingID\" = " + manufacturingID_value;
         //System.out.println(query);
 
         try {
@@ -296,10 +315,10 @@ public class dbFunctions {
             return false;
         }
 
-        try{
-            if(rs.next()==false) return false;
+        try {
+            if (rs.next() == false) return false;
             else return true;
-        }catch(Exception ex){
+        } catch (Exception ex) {
             System.out.println("No values");
         }
         return false;
@@ -307,27 +326,27 @@ public class dbFunctions {
 
     }
 
-    public void insertShippingOrder(int manufacturingID, int quantity, int startShippingDate){
-        String query = "INSERT INTO \"ShippingOrder\" VALUES("+manufacturingID+","+ quantity+"," +
-                startShippingDate+", 1);";
+    public void insertShippingOrder(int manufacturingID, int quantity, int startShippingDate) {
+        String query = "INSERT INTO \"ShippingOrder\" VALUES(" + manufacturingID + "," + quantity + "," +
+                startShippingDate + ", 1);";
         executeQuery(query);
         //System.out.println(query);
     }
 
-    public void updateShippingOrder(int manufacturingID, int quantity, int startShippingDate){
+    public void updateShippingOrder(int manufacturingID, int quantity, int startShippingDate) {
 
-        String query = "UPDATE \"ShippingOrder\" SET \"quantity\"="+quantity+" WHERE \"manufacturingID\"="+manufacturingID;
+        String query = "UPDATE \"ShippingOrder\" SET \"quantity\"=" + quantity + " WHERE \"manufacturingID\"=" + manufacturingID;
         executeQuery(query);
-        query = "UPDATE \"ShippingOrder\" SET \"startShippingDate\"="+startShippingDate+" WHERE \"manufacturingID\"="+manufacturingID;
+        query = "UPDATE \"ShippingOrder\" SET \"startShippingDate\"=" + startShippingDate + " WHERE \"manufacturingID\"=" + manufacturingID;
         executeQuery(query);
     }
 
 
-    public boolean checkproductionOrdermanufacturingID(int manufacturingID_value){
+    public boolean checkproductionOrdermanufacturingID(int manufacturingID_value) {
         //String query = "INSERT INTO Supplier VALUES('"+name+"',"+deliveryTime+", "+minQty+");";
         //String query = "SELECT exists (select * FROM manufacturingOrder WHERE productionID = "+productionID_value+");";
         //executeQuery(query);
-        String query = "SELECT * FROM \"ProductionOrder\" WHERE \"manufacturingID\" = "+manufacturingID_value;
+        String query = "SELECT * FROM \"ProductionOrder\" WHERE \"manufacturingID\" = " + manufacturingID_value;
         //System.out.println(query);
 
         try {
@@ -337,10 +356,10 @@ public class dbFunctions {
             return false;
         }
 
-        try{
-            if(rs.next()==false) return false;
+        try {
+            if (rs.next() == false) return false;
             else return true;
-        }catch(Exception ex){
+        } catch (Exception ex) {
             System.out.println("No values");
         }
         return false;
@@ -348,28 +367,28 @@ public class dbFunctions {
 
     }
 
-    public void insertProductionOrder(int manufacturingID, int quantity, int finalType, int startProdutionDate){
-        String query = "INSERT INTO \"ProductionOrder\" VALUES("+manufacturingID+","+ quantity+"," +
-                finalType+", "+startProdutionDate+", 1);";
+    public void insertProductionOrder(int manufacturingID, int quantity, int finalType, int startProdutionDate) {
+        String query = "INSERT INTO \"ProductionOrder\" VALUES(" + manufacturingID + "," + quantity + "," +
+                finalType + ", " + startProdutionDate + ", 1);";
         executeQuery(query);
         //System.out.println(query);
     }
 
-    public void updateProductionOrder(int manufacturingID, int quantity, int finalType, int startProdutionDate){
+    public void updateProductionOrder(int manufacturingID, int quantity, int finalType, int startProdutionDate) {
 
-        String query = "UPDATE \"ProductionOrder\" SET \"quantity\"="+quantity+" WHERE \"manufacturingID\"="+manufacturingID;
+        String query = "UPDATE \"ProductionOrder\" SET \"quantity\"=" + quantity + " WHERE \"manufacturingID\"=" + manufacturingID;
         executeQuery(query);
-        query = "UPDATE \"ProductionOrder\" SET \"finalType\"="+finalType+" WHERE \"manufacturingID\"="+manufacturingID;
+        query = "UPDATE \"ProductionOrder\" SET \"finalType\"=" + finalType + " WHERE \"manufacturingID\"=" + manufacturingID;
         executeQuery(query);
-        query = "UPDATE \"ProductionOrder\" SET \"startProdutionDat\"e="+startProdutionDate+" WHERE \"manufacturingID\"="+manufacturingID;
+        query = "UPDATE \"ProductionOrder\" SET \"startProdutionDat\"e=" + startProdutionDate + " WHERE \"manufacturingID\"=" + manufacturingID;
         executeQuery(query);
     }
 
-    public boolean checkrawMaterialOrderID_QtyRawMaterial(int rawMaterialOrderID){
+    public boolean checkrawMaterialOrderID_QtyRawMaterial(int rawMaterialOrderID) {
         //String query = "INSERT INTO Supplier VALUES('"+name+"',"+deliveryTime+", "+minQty+");";
         //String query = "SELECT exists (select * FROM manufacturingOrder WHERE productionID = "+productionID_value+");";
         //executeQuery(query);
-        String query = "SELECT * FROM \"rawMaterialOrderID_QtyRawMaterial\" WHERE \"rawMaterialOrderID\" = "+rawMaterialOrderID;
+        String query = "SELECT * FROM \"rawMaterialOrderID_QtyRawMaterial\" WHERE \"rawMaterialOrderID\" = " + rawMaterialOrderID;
         //System.out.println(query);
 
         try {
@@ -379,10 +398,10 @@ public class dbFunctions {
             return false;
         }
 
-        try{
-            if(rs.next()==false) return false;
+        try {
+            if (rs.next() == false) return false;
             else return true;
-        }catch(Exception ex){
+        } catch (Exception ex) {
             System.out.println("No values");
         }
         return false;
@@ -390,34 +409,34 @@ public class dbFunctions {
 
     }
 
-    public void insertrawMaterialOrderID_QtyRawMaterial(int serial_rawMaterialOrderID, int rawMaterialOrderID, int qtyRawMaterial, int manufacturingID){
-        String query = "INSERT INTO \"rawMaterialOrderID_QtyRawMaterial\" VALUES("+serial_rawMaterialOrderID+","+rawMaterialOrderID+","+ qtyRawMaterial+"," +
-                manufacturingID+");";
+    public void insertrawMaterialOrderID_QtyRawMaterial(int serial_rawMaterialOrderID, int rawMaterialOrderID, int qtyRawMaterial, int manufacturingID) {
+        String query = "INSERT INTO \"rawMaterialOrderID_QtyRawMaterial\" VALUES(" + serial_rawMaterialOrderID + "," + rawMaterialOrderID + "," + qtyRawMaterial + "," +
+                manufacturingID + ");";
         executeQuery(query);
         //System.out.println(query);
     }
 
-    public void insertproductionInRawMaterials(int serial_productionInRawMaterials, int orderID, int reservedQty, int id){
-        String query = "INSERT INTO \"productionInRawMaterials\" VALUES("+serial_productionInRawMaterials+","+orderID+","+ reservedQty+"," +
-                id+");";
+    public void insertproductionInRawMaterials(int serial_productionInRawMaterials, int orderID, int reservedQty, int id) {
+        String query = "INSERT INTO \"productionInRawMaterials\" VALUES(" + serial_productionInRawMaterials + "," + orderID + "," + reservedQty + "," +
+                id + ");";
         executeQuery(query);
         //System.out.println(query);
     }
 
-    public void updaterawMaterialOrderID_QtyRawMaterial(int rawMaterialOrderID, int qtyRawMaterial, int manufacturingID){
+    public void updaterawMaterialOrderID_QtyRawMaterial(int rawMaterialOrderID, int qtyRawMaterial, int manufacturingID) {
 
-        String query = "UPDATE \"rawMaterialOrderID_QtyRawMaterial\" SET \"qtyRawMaterial\"="+qtyRawMaterial+" WHERE \"rawMaterialOrderID\"="+rawMaterialOrderID;
+        String query = "UPDATE \"rawMaterialOrderID_QtyRawMaterial\" SET \"qtyRawMaterial\"=" + qtyRawMaterial + " WHERE \"rawMaterialOrderID\"=" + rawMaterialOrderID;
         executeQuery(query);
-        query = "UPDATE \"rawMaterialOrderID_QtyRawMaterial\" SET \"manufacturingID\"="+manufacturingID+" WHERE \"rawMaterialOrderID\"="+rawMaterialOrderID;
+        query = "UPDATE \"rawMaterialOrderID_QtyRawMaterial\" SET \"manufacturingID\"=" + manufacturingID + " WHERE \"rawMaterialOrderID\"=" + rawMaterialOrderID;
         //executeQuery(query);
     }
 
 
-    public boolean checkrawRawMaterialOrder(int id){
+    public boolean checkrawRawMaterialOrder(int id) {
         //String query = "INSERT INTO Supplier VALUES('"+name+"',"+deliveryTime+", "+minQty+");";
         //String query = "SELECT exists (select * FROM manufacturingOrder WHERE productionID = "+productionID_value+");";
         //executeQuery(query);
-        String query = "SELECT * FROM \"RawMaterialOrder\" WHERE \"id\" = "+id;
+        String query = "SELECT * FROM \"RawMaterialOrder\" WHERE \"id\" = " + id;
         System.out.println(query);
 
         try {
@@ -427,53 +446,52 @@ public class dbFunctions {
             return false;
         }
 
-        try{
-            if(rs.next()==false) return false;
+        try {
+            if (rs.next() == false) return false;
             else return true;
-        }catch(Exception ex){
+        } catch (Exception ex) {
             System.out.println("No values");
         }
         return false;
 
 
     }
-    public void insertRawMaterialOrder(int id, int qty, int piece_type, int timeToPlaceOrder, int arrivalTime, String name){
-        String query = "INSERT INTO \"RawMaterialOrder\" VALUES("+id+","+qty+","+ piece_type+"," +
-                timeToPlaceOrder+", "+arrivalTime+", '"+name+"', 1);";
+
+    public void insertRawMaterialOrder(int id, int qty, int piece_type, int timeToPlaceOrder, int arrivalTime, String name) {
+        String query = "INSERT INTO \"RawMaterialOrder\" VALUES(" + id + "," + qty + "," + piece_type + "," +
+                timeToPlaceOrder + ", " + arrivalTime + ", '" + name + "', 1);";
         executeQuery(query);
         //System.out.println(query);
     }
 
-    public void updateRawMaterialOrder(int id, int qty, int piece_type, int timeToPlaceOrder, int arrivalTime){
+    public void updateRawMaterialOrder(int id, int qty, int piece_type, int timeToPlaceOrder, int arrivalTime) {
 
-        String query = "UPDATE \"RawMaterialOrder\" SET \"qty\"="+qty+" WHERE \"id\"="+id;
+        String query = "UPDATE \"RawMaterialOrder\" SET \"qty\"=" + qty + " WHERE \"id\"=" + id;
         System.out.println(query);
         executeQuery(query);
-        query = "UPDATE \"RawMaterialOrder\" SET \"piece_type\"="+piece_type+" WHERE \"id\"="+id;
+        query = "UPDATE \"RawMaterialOrder\" SET \"piece_type\"=" + piece_type + " WHERE \"id\"=" + id;
         System.out.println(query);
         executeQuery(query);
-        query = "UPDATE \"RawMaterialOrder\" SET \"timeToPlaceOrder\"="+timeToPlaceOrder+" WHERE \"id\"="+id;
+        query = "UPDATE \"RawMaterialOrder\" SET \"timeToPlaceOrder\"=" + timeToPlaceOrder + " WHERE \"id\"=" + id;
         System.out.println(query);
         executeQuery(query);
-        query = "UPDATE \"RawMaterialOrder\" SET \"arrivalTime\"="+arrivalTime+" WHERE \"id\"="+id;
+        query = "UPDATE \"RawMaterialOrder\" SET \"arrivalTime\"=" + arrivalTime + " WHERE \"id\"=" + id;
         System.out.println(query);
         executeQuery(query);
     }
 
 
-    public void insertSupplier(String name, int deliveryTime, int minQty){
-        String query = "INSERT INTO \"Supplier\" VALUES('"+name+"',"+deliveryTime+","+minQty+");";
+    public void insertSupplier(String name, int deliveryTime, int minQty) {
+        String query = "INSERT INTO \"Supplier\" VALUES('" + name + "'," + deliveryTime + "," + minQty + ");";
         executeQuery(query);
     }
 
 
-
-
-    public boolean checkrawPiece(int type, int unitCost){
+    public boolean checkrawPiece(int type, int unitCost) {
         //String query = "INSERT INTO Supplier VALUES('"+name+"',"+deliveryTime+", "+minQty+");";
         //String query = "SELECT exists (select * FROM manufacturingOrder WHERE productionID = "+productionID_value+");";
         //executeQuery(query);
-        String query = "SELECT * FROM \"RawPiece\" WHERE \"type\" = "+type+" AND \"unitCost\" = "+unitCost;
+        String query = "SELECT * FROM \"RawPiece\" WHERE \"type\" = " + type + " AND \"unitCost\" = " + unitCost;
         //System.out.println(query);
 
         try {
@@ -483,10 +501,10 @@ public class dbFunctions {
             return false;
         }
 
-        try{
-            if(rs.next()==false) return false;
+        try {
+            if (rs.next() == false) return false;
             else return true;
-        }catch(Exception ex){
+        } catch (Exception ex) {
             System.out.println("No values");
         }
         return false;
@@ -494,8 +512,8 @@ public class dbFunctions {
 
     }
 
-    public void insertRawPiece(int type, int unitCost, String name){
-        String query = "INSERT INTO \"RawPiece\" VALUES("+type+","+unitCost+",'"+ name+"');";
+    public void insertRawPiece(int type, int unitCost, String name) {
+        String query = "INSERT INTO \"RawPiece\" VALUES(" + type + "," + unitCost + ",'" + name + "');";
         executeQuery(query);
         //System.out.println(query);
     }
@@ -507,7 +525,6 @@ public class dbFunctions {
         query = "UPDATE \"rawMaterialOrderID_QtyRawMaterial\" SET manufacturingID="+manufacturingID+" WHERE rawMaterialOrderID="+rawMaterialOrderID;
         executeQuery(query);
     }*/
-
 
 
     public void createSQLtables() {
@@ -541,6 +558,7 @@ public class dbFunctions {
                     "  \"expectedShippingStart\" Integer NOT NULL,\n" +
                     "  \"meanSFS_t\" Integer NOT NULL,\n" +
                     "  \"meanProduction_t\" Integer NOT NULL,\n" +
+                    "  \"finalDay\" Integer NOT NULL,\n" +
                     "  \"totalCost\" Integer NOT NULL,\n" +
                     "  \"orderNum\" Integer,\n" +
                     "  \"erpID\" Integer\n" +
@@ -815,10 +833,10 @@ public class dbFunctions {
         }
     }
 
-    public void dropSQLtables(){
+    public void dropSQLtables() {
         try {
             st.execute("DROP SCHEMA infi CASCADE");
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("Sql exception: Dropping tables error");
         }
     }
