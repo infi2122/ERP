@@ -136,8 +136,8 @@ public class ERP {
                 setCurrentTime((time - startTime) / 1000);
                 if ((int) getTime() / oneDay > countdays) {
                     countdays = (int) getTime() / oneDay;
-                    //getErp_viewer().cleanScreen();
                     displayCurrentDay();
+                    displayMenu();
                 }
             }
         }
@@ -507,18 +507,19 @@ public class ERP {
                     }
                 }
 //                System.out.println("Avg Cost: " + totalCost / manufacturingOrder.getClientOrder().getQty());
+                // Calcula se houve dias de antecipados/atraso e impoe as penalizaçoes descritas nas encomendas do cliente
+                if (curr.getFinalDay() != 0) {
+                    int penalizationDays = curr.getClientOrder().getDeliveryDate() - curr.getFinalDay();
+
+                    if (penalizationDays > 0) { // Ficou pronta antecipadamente
+                        totalCost += penalizationDays * curr.getClientOrder().getPenAdvance();
+                    } else if (penalizationDays < 0) { // Ficou pronta depois do prazo
+                        totalCost += penalizationDays * (-1) * curr.getClientOrder().getPenDelay();
+                    }
+
+                    curr.setTotalCost((int) totalCost);
+                }
             }
-
-            // Calcula se houve dias de antecipados/atraso e impoe as penalizaçoes descritas nas encomendas do cliente
-            int penalizationDays = curr.getClientOrder().getDeliveryDate() - curr.getFinalDay();
-
-            if (penalizationDays > 0) { // Ficou pronta antecipadamente
-                totalCost += penalizationDays * curr.getClientOrder().getPenAdvance();
-            } else if (penalizationDays < 0) { // Ficou pronta depois do prazo
-                totalCost += penalizationDays * (-1) * curr.getClientOrder().getPenDelay();
-            }
-
-            curr.setTotalCost((int) totalCost);
         }
 
 
@@ -662,6 +663,7 @@ public class ERP {
     }
 
     public void displayCurrentDay() {
+        cleanTerminal();
         getErp_viewer().showCurrentDay(countdays);
     }
 

@@ -54,16 +54,17 @@ public class App {
         // CONTEXT MENU
         boolean exit = true;
         while (exit) {
+            //erp.cleanTerminal();
             erp.displayMenu();
-            switch (input.nextInt()) {
-                case 1 -> erp.displayInternalOrder();
-                case 2 -> erp.displayRawMaterialOrdered();
-                case 3 -> erp.displayManufacturingOrdersCosts();
-                case 0 -> exit = false;
+            switch (input.nextLine()) {
+                case "1" -> erp.displayInternalOrder();
+                case "2" -> erp.displayRawMaterialOrdered();
+                case "3" -> erp.displayManufacturingOrdersCosts();
+                case "0" -> exit = false;
                 default -> {
+                    continue;
                 }
             }
-            erp.cleanTerminal();
             if (exit)
                 erp.displayCurrentDay();
         }

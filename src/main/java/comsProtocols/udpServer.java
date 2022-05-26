@@ -65,9 +65,4 @@ public class udpServer {
         }
     }
 
-//    public static void main(String args[]) {
-//        udpServer server = new udpServer();
-//        server.start(54321, new shareResources());
-//    }
-
 }

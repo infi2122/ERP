@@ -27,36 +27,36 @@ public class ERP_Viewer {
 
     public void showInternalOrders(ArrayList<rawMaterialOrder> recv, ArrayList<productionOrder> prod, ArrayList<shippingOrder> ship, int currDay) {
 
-        if (recv.size() == 0 && prod.size() == 0 && ship.size() == 0)
-            return;
 
         //showInternalOrdersHistory(recv,prod,ship,currDay);
         System.out.println("************************ Internal Orders  *************************");
-        System.out.println("---------------------> Raw Material Orders <-----------------------");
+        if (recv.size() > 0 || prod.size() > 0 || ship.size() > 0) {
+            System.out.println("---------------------> Raw Material Orders <-----------------------");
 
-        for (rawMaterialOrder curr : recv) {
-            //if(curr.getArrivalTime() >= currDay )
-            System.out.println(" rawMaterial ID: " + curr.getID() + " arrives on day: " + curr.getArrivalTime() +
-                    " Type: " + curr.getPieceType() + " Quantity: " + curr.getQty());
+            for (rawMaterialOrder curr : recv) {
+                //if(curr.getArrivalTime() >= currDay )
+                System.out.println(" rawMaterial ID: " + curr.getID() + " arrives on day: " + curr.getArrivalTime() +
+                        " Type: " + curr.getPieceType() + " Quantity: " + curr.getQty());
 
-            for (productionInRawMaterials curr2 : curr.getProductionInRawMaterials()) {
-                System.out.println("     manufacturingID: " + curr2.getOrderID() + " quantity: " + curr2.getReservedQty());
+                for (productionInRawMaterials curr2 : curr.getProductionInRawMaterials()) {
+                    System.out.println("     manufacturingID: " + curr2.getOrderID() + " quantity: " + curr2.getReservedQty());
+                }
+
             }
 
-        }
+            System.out.println("\n----------------------> Production Orders <-----------------------");
+            for (productionOrder curr : prod) {
+                // if (curr.getStartProdutionDate() >= currDay)
+                System.out.println(" manufacturingID: " + curr.getManufacturingID() + " starts on day: " + curr.getStartProdutionDate()
+                        + " Type: " + curr.getFinalType() + " Qty: " + curr.getQty());
+            }
 
-        System.out.println("\n----------------------> Production Orders <-----------------------");
-        for (productionOrder curr : prod) {
-            // if (curr.getStartProdutionDate() >= currDay)
-            System.out.println(" manufacturingID: " + curr.getManufacturingID() + " starts on day: " + curr.getStartProdutionDate()
-                    + " Type: " + curr.getFinalType() + " Qty: " + curr.getQty());
-        }
-
-        System.out.println("\n------------------------> Shipping Orders <-----------------------");
-        for (shippingOrder curr : ship) {
-            // if (curr.getStartShippingDate() >= currDay)
-            System.out.println(" manufacturingID: " + curr.getManufacturingID() + " starts on day: " + curr.getStartShippingDate()
-                    + " Qty: " + curr.getQty());
+            System.out.println("\n------------------------> Shipping Orders <-----------------------");
+            for (shippingOrder curr : ship) {
+                // if (curr.getStartShippingDate() >= currDay)
+                System.out.println(" manufacturingID: " + curr.getManufacturingID() + " starts on day: " + curr.getStartShippingDate()
+                        + " Qty: " + curr.getQty());
+            }
         }
         System.out.println("*******************************************************************");
         System.out.println("PRESS 'e' to exit!");
@@ -88,9 +88,9 @@ public class ERP_Viewer {
     }
 
     public void showRawMaterialsOrdered(ArrayList<rawMaterialOrder> arrayList) {
-        if (arrayList.size() > 0) {
-            System.out.println("********************** Raw Material Ordered  **********************");
 
+        System.out.println("********************** Raw Material Ordered  **********************");
+        if (arrayList.size() > 0) {
             for (rawMaterialOrder curr : arrayList) {
 
                 System.out.println(" Supplier: " + curr.getSupplier().getName() +
@@ -101,17 +101,18 @@ public class ERP_Viewer {
                     System.out.println("     manufacturingID: " + curr2.getOrderID() + " Qty: " + curr2.getReservedQty());
                 }
             }
-            System.out.println("*******************************************************************");
-            System.out.println("PRESS 'e' to exit!");
-            Scanner input = new Scanner(System.in);
-            while (!(input.nextLine().equals("e") || input.nextLine().equals("E"))) ;
         }
+        System.out.println("*******************************************************************");
+        System.out.println("PRESS 'e' to exit!");
+        Scanner input = new Scanner(System.in);
+        while (!(input.nextLine().equals("e") || input.nextLine().equals("E"))) ;
+
     }
 
     public void showManufacturingOrdersCosts(ArrayList<manufacturingOrder> arrayList, ArrayList<rawMaterialOrder> rawMaterialOrders) {
-        if (arrayList.size() > 0) {
-            System.out.println("*********************** Manufacturing Costs  **********************");
 
+        System.out.println("*********************** Manufacturing Costs  **********************");
+        if (arrayList.size() > 0) {
             for (manufacturingOrder curr : arrayList) {
                 if (curr.getTotalCost() > 0) {
                     System.out.println(" manufacturingID: " + curr.getProductionID() +
@@ -134,11 +135,12 @@ public class ERP_Viewer {
                 }
 
             }
-            System.out.println("*******************************************************************");
-            System.out.println("PRESS 'e' to exit!");
-            Scanner input = new Scanner(System.in);
-            while (!(input.nextLine().equals("e") || input.nextLine().equals("E"))) ;
         }
+        System.out.println("*******************************************************************");
+        System.out.println("PRESS 'e' to exit!");
+        Scanner input = new Scanner(System.in);
+        while (!(input.nextLine().equals("e") || input.nextLine().equals("E"))) ;
+
     }
 
 
