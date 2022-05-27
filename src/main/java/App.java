@@ -36,7 +36,7 @@ public class App {
 
         /* UDP Listener for new orders */
         udpServer udpThread = new udpServer();
-        udpThread.start(portClientOrders, shareResources, 0, 5);
+        udpThread.start(portClientOrders, shareResources, 0, 2);
         /* *************************************** */
 
         /* TCP/IP for MES communications */

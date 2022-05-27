@@ -4,10 +4,9 @@ import SQL.dbFunctions;
 import comsProtocols.sharedResources;
 import Models.*;
 import Readers.suppliersList;
-import Readers.xmlReader;
+import Readers.xmlClientOrdersReader;
 import Viewers.*;
 
-import java.lang.management.GarbageCollectorMXBean;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
@@ -150,7 +149,7 @@ public class ERP {
      */
     public void checkNewOrders() {
 
-        xmlReader reader = new xmlReader();
+        xmlClientOrdersReader reader = new xmlClientOrdersReader();
         ArrayList<clientOrder> ordersVec = reader.readOrder(getShareResources().getClientOrders());
         if (ordersVec == null)
             return;
