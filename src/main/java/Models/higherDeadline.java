@@ -72,18 +72,18 @@ public class higherDeadline extends orderCriterium {
 
         unload_t = unloadEstimation(order);
         production_t = productionEstimation(order);
-        shipping_t = shippingEstimation(order);
+        //shipping_t = shippingEstimation(order);
 
         // em função do tempo disponivel escolhe o supplier
         // se nao for suficiente olha para o espaço livre do armazem e das encomendas pendentes de modo que caibam
         // se ainda assim nao for possivel decidir entao olha para o custo das peças
 
-
-        return fullPlanEstimation(order, unload_t, production_t, shipping_t, current_t);
+        //System.out.println("unload_t: " + unload_t + " production_t: " + production_t);
+        //  return fullPlanEstimation(order, unload_t, production_t, shipping_t, current_t);
+        return fullPlanEstimation(order, unload_t, production_t, current_t);
     }
 
     public int unloadEstimation(clientOrder order) {
-
         // Pesquisa encomendas pendentes para chegar antes
         // Logo esta encomenda so pode começar a ser descarregada após
         return order.getQty() * (LINEAR_t + ROTATE_t + in_out_WH_t + placeOnConveyorDelay);
@@ -148,13 +148,13 @@ public class higherDeadline extends orderCriterium {
      * @param order
      * @param unload_t
      * @param production_t
-     * @param shipping_t
      * @return #days added to delivery date
      */
-    public Vector<Integer> fullPlanEstimation(clientOrder order, int unload_t, int production_t, int shipping_t, long current_t) {
-        int unload_begin = 0, unload_end = 0;
-        int production_begin = 0, production_end = 0;
-        int shipping_begin = 0, shipping_end = 0;
+    //   public Vector<Integer> fullPlanEstimation(clientOrder order, int unload_t, int production_t, int shipping_t, long current_t) {
+    public Vector<Integer> fullPlanEstimation(clientOrder order, int unload_t, int production_t, long current_t) {
+        int unload_begin, unload_end;
+        int production_begin, production_end;
+        int shipping_begin, shipping_end;
 
 //        int deliveryDate = order.getDeliveryDate() - 1;
 //
@@ -199,20 +199,24 @@ public class higherDeadline extends orderCriterium {
 //        shipping_end = 0;
 
         // **** SHIPPING ****
+
         int deliveryDate = order.getDeliveryDate();
 
-        if (order.getQty() <= shipping_capacity) {
-            shipping_end = deliveryDate;
-            shipping_begin = shipping_end;
-        } else {
-            shipping_end = deliveryDate - 1;
-            shipping_begin = shipping_end - order.getQty() / shipping_capacity;
-        }
+//        if (order.getQty() <= shipping_capacity) {
+//            shipping_end = deliveryDate;
+//            shipping_begin = shipping_end;
+//        } else {
+//            shipping_end = deliveryDate - 1;
+//            shipping_begin = shipping_end - order.getQty() / shipping_capacity;
+//        }
+        shipping_begin = deliveryDate;
+        shipping_end = shipping_begin;
 
         // **** PRODUCTION ****
         // Supondo que a produção termina no dia anterior ao dia de entrega
         production_end = shipping_begin - 1;
         int days2production = production_t / oneDay;
+
 
         // Dar uma folga de mais um dia para produção
         production_begin = production_end - days2production + 1;
@@ -224,9 +228,26 @@ public class higherDeadline extends orderCriterium {
         else
             unload_begin = unload_end - order.getQty() / unload_capacity;
 
+
+        // Vai assumir que no dia seguinte tem a encomenda, logo será feita ao Supplier que entrega em 1 dia
+        if (unload_begin <= (current_t / oneDay)) {
+
+            unload_begin = (int) (current_t / oneDay) + 1;
+            double absUnload_t = (double) unload_t / oneDay;
+            unload_end = unload_begin + (int) absUnload_t;
+
+            production_begin = unload_end + 1;
+            production_end = production_begin + (production_t / oneDay);
+            shipping_begin = production_end;
+            shipping_end = shipping_begin;
+
+        }
+
+//        System.out.println(" ");
 //        System.out.println("UNLOAD | begin: " + unload_begin + " end: " + unload_end);
 //        System.out.println("PRODUCTION | begin: " + production_begin + " end: " + production_end);
 //        System.out.println("SHIPPING | begin: " + shipping_begin + " end: " + shipping_end);
+//        System.out.println(" ");
 
         Vector<Integer> returnVEC = new Vector<>();
 

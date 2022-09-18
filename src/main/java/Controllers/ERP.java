@@ -1,9 +1,10 @@
 package Controllers;
 
+import SQL.dbFunctions;
 import comsProtocols.sharedResources;
 import Models.*;
 import Readers.suppliersList;
-import Readers.xmlReader;
+import Readers.xmlClientOrdersReader;
 import Viewers.*;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class ERP {
 
     // ******* ATTRIBUTES ********
     private long currentTime;
+    private dbFunctions sql;
     private sharedResources shareResources;
     private orderCriterium orderCriterium;
     private ArrayList<manufacturingOrder> manufacturingOrders;
@@ -35,10 +37,11 @@ public class ERP {
 
     // ******* CONSTRUCTOR ********
     public ERP(orderCriterium orderCriterium, ArrayList<manufacturingOrder> manufacturingOrders,
-               ERP_Viewer erp_viewer, sharedResources sharedResources) {
+               ERP_Viewer erp_viewer, sharedResources sharedResources, dbFunctions sql) {
         this.orderCriterium = orderCriterium;
         this.manufacturingOrders = manufacturingOrders;
         this.erp_viewer = erp_viewer;
+        this.sql = sql;
         this.shareResources = sharedResources;
         this.rawMaterialOrders = new ArrayList<>();
         this.productionOrders = new ArrayList<>();
@@ -114,6 +117,7 @@ public class ERP {
 
 
     // ******** METHODS *********
+
     /**
      * counts every second
      */
@@ -122,7 +126,7 @@ public class ERP {
         if (startTime == 0) {
             startTime = System.currentTimeMillis();
             shareResources.setStartTime(startTime);
-            System.out.println("Current Day: " + countdays);
+            displayCurrentDay();
 
         } else {
             long time = System.currentTimeMillis();
@@ -131,8 +135,8 @@ public class ERP {
                 setCurrentTime((time - startTime) / 1000);
                 if ((int) getTime() / oneDay > countdays) {
                     countdays = (int) getTime() / oneDay;
-                    getErp_viewer().cleanScreen();
-                    System.out.println("Current Day: " + countdays);
+                    displayCurrentDay();
+                    displayMenu();
                 }
             }
         }
@@ -145,7 +149,7 @@ public class ERP {
      */
     public void checkNewOrders() {
 
-        xmlReader reader = new xmlReader();
+        xmlClientOrdersReader reader = new xmlClientOrdersReader();
         ArrayList<clientOrder> ordersVec = reader.readOrder(getShareResources().getClientOrders());
         if (ordersVec == null)
             return;
@@ -460,6 +464,7 @@ public class ERP {
 
                     curr.setMeanProduction_t(Integer.parseInt(fields[1]));
                     curr.setMeanSFS_t(Integer.parseInt(fields[2]));
+                    curr.setFinalDay(Integer.parseInt(fields[3]));
                 }
             }
             i++;
@@ -501,13 +506,165 @@ public class ERP {
                     }
                 }
 //                System.out.println("Avg Cost: " + totalCost / manufacturingOrder.getClientOrder().getQty());
-                curr.setTotalCost((int) totalCost);
+                // Calcula se houve dias de antecipados/atraso e impoe as penalizaçoes descritas nas encomendas do cliente
+                if (curr.getFinalDay() != 0) {
+                    int penalizationDays = curr.getClientOrder().getDeliveryDate() - curr.getFinalDay();
+
+                    if (penalizationDays > 0) { // Ficou pronta antecipadamente
+                        totalCost += penalizationDays * curr.getClientOrder().getPenAdvance();
+                    } else if (penalizationDays < 0) { // Ficou pronta depois do prazo
+                        totalCost += penalizationDays * (-1) * curr.getClientOrder().getPenDelay();
+                    }
+
+                    curr.setTotalCost((int) totalCost);
+                }
             }
+        }
+
+
+    }
+
+    /**
+     * Saves the history of ERP
+     */
+    public void updateDB() {
+
+        //System.out.println(currentTime);
+        //System.out.println(startTime);
+        //System.out.println(countdays);
+        //System.out.println(dayBefore);
+
+
+        if (sql.checkERP(1)) {
+            sql.updateERP(1, currentTime, countdays);
+        }
+
+        //if (!sql.hasRows("sharedResources")) sql.insertsharedResources(startTime, getShareResources().getInternalOrdersConcat(), getShareResources().getClientOrders(), getShareResources().getFinishedOrdersInfo());
+        //sql.insertsharedResources(startTime, getShareResources().getInternalOrdersConcat(), getShareResources().getClientOrders(), getShareResources().getFinishedOrdersInfo());
+        int serial_rawMaterialOrderID = 0;
+        int serial_productionInRawMaterials = 0;
+
+        for (manufacturingOrder curr : getManufacturingOrders()) {
+
+            sql.insertClientOrder(curr.getClientOrder().getClientName(), curr.getClientOrder().getOrderNum(), curr.getClientOrder().getPieceType(),
+                    curr.getClientOrder().getQty(), curr.getClientOrder().getDeliveryDate(), curr.getClientOrder().getPenDelay(), curr.getClientOrder().getPenAdvance());
+
+            sql.insertManufacturingOrder(curr.getProductionID(), curr.getClientOrder().getClientName(), curr.getExpectedRawMaterialArrival(),
+                    curr.getExpectedProdutionStart(), curr.getExpectedShippingStart(), curr.getMeanSFS_t(), curr.getMeanProduction_t(), curr.getFinalDay(),
+                    curr.getTotalCost(), curr.getClientOrder().getOrderNum());
+
+        }
+
+        for (shippingOrder curr : getShippingOrders()) {
+
+            if (sql.checkshippingOrdermanufacturingID(curr.getManufacturingID())) {
+                sql.updateShippingOrder(curr.getManufacturingID(), curr.getQty(), curr.getStartShippingDate());
+            } else {
+                sql.insertShippingOrder(curr.getManufacturingID(), curr.getQty(), curr.getStartShippingDate());
+            }
+        }
+
+        /*for (productionOrder curr:  getProductionOrders()){
+
+
+            //if (sql.checkproductionOrdermanufacturingID(curr.getManufacturingID())){
+                //sql.updateProductionOrder(curr.getManufacturingID(), curr.getQty(), curr.getFinalType(), curr.getStartProdutionDate());
+
+                //for(rawMaterialOrderID_QtyRawMaterial curr2: curr.getRawMaterialOrderID_qtyRawMaterials()){
+                  //  if (sql.checkrawMaterialOrderID_QtyRawMaterial(curr2.getRawMaterialOrderID())){
+                    //    sql.updaterawMaterialOrderID_QtyRawMaterial(curr2.getRawMaterialOrderID(), curr2.getQtyRawMaterial(), curr.getManufacturingID());
+                    //}
+
+                    //else{
+                      //  sql.insertrawMaterialOrderID_QtyRawMaterial(curr2.getRawMaterialOrderID(), curr2.getQtyRawMaterial(), curr.getManufacturingID());
+                    //}
+
+                //}
+
+            //}
+            //else{
+                sql.insertProductionOrder(curr.getManufacturingID(), curr.getQty(), curr.getFinalType(), curr.getStartProdutionDate());
+
+                for(rawMaterialOrderID_QtyRawMaterial curr2: curr.getRawMaterialOrderID_qtyRawMaterials()){
+                    //if (sql.checkrawMaterialOrderID_QtyRawMaterial(curr2.getRawMaterialOrderID())){
+                      //  sql.updaterawMaterialOrderID_QtyRawMaterial(curr2.getRawMaterialOrderID(), curr2.getQtyRawMaterial(), curr.getManufacturingID());
+                    //}
+
+                    //else{
+                        sql.insertrawMaterialOrderID_QtyRawMaterial(curr2.getRawMaterialOrderID(), curr2.getQtyRawMaterial(), curr.getManufacturingID());
+                    //}
+
+                }
+            //}
+        }*/
+
+        for (productionOrder curr : getProductionOrders()) {
+
+            //if (sql.checkproductionOrdermanufacturingID(curr.getManufacturingID())){
+            //sql.updateProductionOrder(curr.getManufacturingID(), curr.getQty(), curr.getFinalType(), curr.getStartProdutionDate());
+
+            //for(rawMaterialOrderID_QtyRawMaterial curr2: curr.getRawMaterialOrderID_qtyRawMaterials()){
+            //  if (sql.checkrawMaterialOrderID_QtyRawMaterial(curr2.getRawMaterialOrderID())){
+            //    sql.updaterawMaterialOrderID_QtyRawMaterial(curr2.getRawMaterialOrderID(), curr2.getQtyRawMaterial(), curr.getManufacturingID());
+            //}
+
+            //else{
+            //  sql.insertrawMaterialOrderID_QtyRawMaterial(curr2.getRawMaterialOrderID(), curr2.getQtyRawMaterial(), curr.getManufacturingID());
+            //}
+
+            //}
+
+            //}
+            //else{
+            sql.insertProductionOrder(curr.getManufacturingID(), curr.getQty(), curr.getFinalType(), curr.getStartProdutionDate());
+
+            for (rawMaterialOrderID_QtyRawMaterial curr2 : curr.getRawMaterialOrderID_qtyRawMaterials()) {
+                //if (sql.checkrawMaterialOrderID_QtyRawMaterial(curr2.getRawMaterialOrderID())){
+                //  sql.updaterawMaterialOrderID_QtyRawMaterial(curr2.getRawMaterialOrderID(), curr2.getQtyRawMaterial(), curr.getManufacturingID());
+                //}
+
+                //else{
+                sql.insertrawMaterialOrderID_QtyRawMaterial(serial_rawMaterialOrderID, curr2.getRawMaterialOrderID(), curr2.getQtyRawMaterial(), curr.getManufacturingID());
+                //}
+                serial_rawMaterialOrderID++;
+            }
+            //}
+        }
+
+        for (rawMaterialOrder curr : getRawMaterialOrders()) {
+
+            sql.insertSupplier(curr.getSupplier().getName(), curr.getSupplier().getDeliveryTime(), curr.getSupplier().getMinQty());
+            sql.insertRawMaterialOrder(curr.getID(), curr.getQty(), curr.getPieceType(), curr.getOrderPlaceTime(), curr.getArrivalTime(), curr.getSupplier().getName());
+
+            for (rawPiece curr2 : curr.getSupplier().getRawPieces()) {
+                sql.insertRawPiece(curr2.getType(), curr2.getUnitCost(), curr.getSupplier().getName());
+            }
+
+            for (productionInRawMaterials curr2 : curr.getProductionInRawMaterials()) {
+                //if (sql.checkrawMaterialOrderID_QtyRawMaterial(curr2.getRawMaterialOrderID())){
+                //  sql.updaterawMaterialOrderID_QtyRawMaterial(curr2.getRawMaterialOrderID(), curr2.getQtyRawMaterial(), curr.getManufacturingID());
+                //}
+
+                //else{
+                sql.insertproductionInRawMaterials(serial_productionInRawMaterials, curr2.getOrderID(), curr2.getReservedQty(), curr.getID());
+                //}
+                serial_productionInRawMaterials++;
+            }
+
+
         }
     }
 
 
     // ******** VIEW METHODS *********
+    public void displayMenu() {
+        getErp_viewer().showMenu();
+    }
+
+    public void displayCurrentDay() {
+        cleanTerminal();
+        getErp_viewer().showCurrentDay(countdays);
+    }
 
     public void displayRawMaterialArriving() {
         getErp_viewer().showRawMaterialArriving(getRawMaterialOrders(), countdays);
@@ -523,5 +680,9 @@ public class ERP {
 
     public void displayManufacturingOrdersCosts() {
         getErp_viewer().showManufacturingOrdersCosts(getManufacturingOrders(), getRawMaterialOrders());
+    }
+
+    public void cleanTerminal() {
+        getErp_viewer().cleanScreen();
     }
 }

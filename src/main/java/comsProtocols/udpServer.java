@@ -48,7 +48,8 @@ public class udpServer {
             DatagramPacket rpkt = new DatagramPacket(rbuf, rbuf.length);
 
             try {
-
+                if(socket.isClosed())
+                    return;
                 socket.receive(rpkt);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -61,12 +62,8 @@ public class udpServer {
             String received
                     = new String(rpkt.getData(), rpkt.getOffset(), rpkt.getLength()).trim();
             buffer.setClientOrders(received);
+
         }
     }
-
-//    public static void main(String args[]) {
-//        udpServer server = new udpServer();
-//        server.start(54321, new shareResources());
-//    }
 
 }

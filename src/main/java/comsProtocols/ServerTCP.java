@@ -50,6 +50,8 @@ public class ServerTCP {
                     socket = serverSocket.accept();
                     System.out.println("Sucessfully Connected to MES");
                 }
+                if(socket.isClosed())
+                    return;
                 acceptRequest("startTime");
                 acceptRequest("internalOrders");
                 try {
